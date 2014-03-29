@@ -7,9 +7,8 @@ using namespace std;
 int main()
 {
     Application app(128);
-    while(1) {
-        int x;
-        scanf("%d", &x);
+    int x;
+    while(scanf("%d", &x)!=EOF) {
         if(x==10) {
             app.play();
         } else if(x==20) {

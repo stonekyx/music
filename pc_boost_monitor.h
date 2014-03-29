@@ -1,6 +1,7 @@
 #ifndef PC_BOOST_MONITOR_H
 #define PC_BOOST_MONITOR_H
 
+#include <iostream>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 
@@ -9,18 +10,20 @@ class Monitor {
     private:
         T *buf;
         boost::atomic<int> ridx, widx, count, bufsize;
+        T &eof;
     public:
         int statis;
-        Monitor<T>(int);
+        Monitor<T>(int, T &eof);
         virtual ~Monitor<T>();
         T &read();
         void write(const T&);
         void clear();
+        int get_count();
     protected:
 };
 
 template<typename T>
-Monitor<T>::Monitor(int bufsize)
+Monitor<T>::Monitor(int bufsize, T &eof):eof(eof)
 {
     this->bufsize = bufsize;
     buf = new T[bufsize];
@@ -38,6 +41,7 @@ T &Monitor<T>::read()
 {
     while(count==0) {
         boost::this_thread::yield();
+        return eof;
     }
     ridx=(ridx+1)%bufsize;
     count--;
@@ -70,6 +74,12 @@ void Monitor<T>::clear()
 {
     count=0;
     ridx=widx=0;
+}
+
+template<typename T>
+int Monitor<T>::get_count()
+{
+    return count;
 }
 
 #endif

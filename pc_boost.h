@@ -2,7 +2,11 @@
 
 #define PC_BOOST_H
 
+#include <fstream>
+
 #include "pc_boost_monitor.h"
+#include "chunk.h"
+#include "decoder.h"
 
 class Application {
     public:
@@ -12,12 +16,14 @@ class Application {
         };
         Application();
         Application(int);
+        virtual ~Application();
         void play();
         void pause();
         void stop();
         void quit();
     private:
-        Monitor<char> *mon;
+        Monitor<Chunk> *mon;
+        Chunk eof;
         void producer();
         void consumer();
         void watcher();
@@ -26,6 +32,8 @@ class Application {
         boost::mutex mutex;
         boost::thread th_prod, th_cons, th_watch;
         void init(int);
+        Decoder *decoder;
+        std::ofstream outfile;
 };
 
 #endif
