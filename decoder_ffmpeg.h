@@ -2,6 +2,8 @@
 
 #define DECODER_FFMPEG_H
 
+#include "sf.h"
+#include "channelmap.h"
 #include "decoder.h"
 
 class DecoderFFmpeg : public Decoder {
@@ -22,6 +24,8 @@ class DecoderFFmpeg : public Decoder {
         char *codec();
         char *codec_profile();
         bool isopen();
+        sample_format_t get_sf();
+        channel_position_t *get_channelmap();
     protected:
 };
 

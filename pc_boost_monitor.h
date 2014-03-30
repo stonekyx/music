@@ -57,7 +57,7 @@ T &Monitor<T>::read()
 template<typename T>
 bool Monitor<T>::write(const T &t)
 {
-    if(count==bufsize) {
+    if(count>=bufsize-1) {
         boost::this_thread::yield();
         return false;
     }

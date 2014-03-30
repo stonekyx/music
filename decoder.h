@@ -2,6 +2,9 @@
 
 #define DECODE_H
 
+#include "sf.h"
+#include "channelmap.h"
+
 class Decoder {
     private:
     public:
@@ -17,6 +20,8 @@ class Decoder {
         virtual char *codec()=0;
         virtual char *codec_profile()=0;
         virtual bool isopen()=0;
+        virtual sample_format_t get_sf()=0;
+        virtual channel_position_t *get_channelmap()=0;
         enum ErrorTypes {
             IP_ERROR_FILE_FORMAT,
             IP_ERROR_UNSUPPORTED_FILE_TYPE,

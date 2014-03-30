@@ -7,6 +7,7 @@
 #include "pc_boost_monitor.h"
 #include "chunk.h"
 #include "decoder.h"
+#include "player.h"
 
 class Application {
     public:
@@ -35,8 +36,10 @@ class Application {
         boost::thread th_prod, th_cons, th_watch;
         void init(int);
         Decoder *decoder;
+        Player *player;
         std::ofstream outfile;
         bool wait_on_state();
+        void reset_chunk(Chunk **chunk);
 };
 
 #endif
