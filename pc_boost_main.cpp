@@ -10,6 +10,7 @@ int main()
     int x;
     while(scanf("%d", &x)!=EOF) {
         if(x==10) {
+            app.open("bleu.flac");
             app.play();
         } else if(x==20) {
             app.pause();

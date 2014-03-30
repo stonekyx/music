@@ -2,49 +2,69 @@
 #include <fstream>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
-#include <cstdlib>
-#include <ctime>
 
 #include "decoder_ffmpeg.h"
+#include "decoder_random.h"
 
 #include "pc_boost.h"
 
 using namespace std;
 
+//This method is call in multiple threads
+inline bool Application::wait_on_state()
+{
+    if(state!=STATE_PAUSE && state!=STATE_STOP) {
+        return true;
+    }
+    boost::unique_lock<boost::mutex> mutex_lock(mutex);
+    if(state!=STATE_PAUSE && state!=STATE_STOP) {
+        return true;
+    }
+    cond.wait(mutex_lock);
+    return false;
+}
+
 void Application::producer() {
+    bool readnext = true;
+    Chunk *chunk = NULL;
     while(1) {
-        if(state==STATE_PAUSE) {
-            boost::unique_lock<boost::mutex> mutex_lock(mutex);
-            if(state==STATE_PLAY) continue;
-            cond.wait(mutex_lock);
+        if(!wait_on_state()) {
             continue;
         }
-        Chunk chunk;
-        int err = decoder->read(chunk.buf.get(), chunk.bufsize);
-        if(err==0) {
-            cout<<"producer EOF"<<endl;
-            this->quit();
+        if(state==STATE_QUIT) {
+            if(chunk) delete chunk;
             cout<<"producer exiting..."<<endl;
             return;
         }
-        if(err<0) continue;
-        chunk.l=0;
-        chunk.h=err;
-        mon->write(chunk);
+        if(readnext) {
+            if(chunk) {
+                delete chunk;
+            }
+            chunk = new Chunk();
+            int err = decoder->read(chunk->buf.get(), chunk->bufsize);
+            if(err==0) {
+                cout<<"producer EOF"<<endl;
+                this->quit();
+                delete chunk;
+                cout<<"producer exiting..."<<endl;
+                return;
+            }
+            if(err<0) continue;
+            chunk->l=0;
+            chunk->h=err;
+        }
+        readnext = mon->write(*chunk);
     }
 }
 
 void Application::consumer() {
     while(1) {
-        if(state==STATE_PAUSE) {
-            boost::unique_lock<boost::mutex> mutex_lock(mutex);
-            if(state==STATE_PLAY) continue;
-            cond.wait(mutex_lock);
+        if(!wait_on_state()) {
             continue;
         }
         Chunk &chunk = mon->read();
         if(chunk==eof) {
-            if(state==STATE_QUIT) {
+            if(state==STATE_QUIT && mon->get_count()==0) {
                 cout<<"consumer exiting..."<<endl;
                 return;
             }
@@ -77,12 +97,9 @@ Application::Application(int bufsize):eof(Chunk(1))
 
 void Application::init(int bufsize)
 {
-    srand(time(NULL));
     state = STATE_PAUSE;
     mon = new Monitor<Chunk>(bufsize, eof);
-    decoder = new DecoderFFmpeg();
-    decoder->open("bleu.flac");
-    outfile.open("/tmp/test.wav");
+    decoder = new DecoderRandom();
     th_prod = boost::thread(boost::bind(&Application::producer, this));
     th_cons = boost::thread(boost::bind(&Application::consumer, this));
     th_watch = boost::thread(boost::bind(&Application::watcher, this));
@@ -90,15 +107,36 @@ void Application::init(int bufsize)
 
 Application::~Application()
 {
-    outfile.close();
-    decoder->close();
     th_prod.join();
     th_cons.join();
     th_watch.join();
+    delete mon;
+    delete decoder;
+}
+
+int Application::open(const char *filename)
+{
+    this->close();
+    outfile.open("/tmp/test.wav");
+    //state is not changed.
+    return decoder->open(filename);
+}
+
+void Application::close()
+{
+    if(decoder->isopen()) {
+        decoder->close();
+    }
+    if(outfile.is_open()) {
+        outfile.close();
+    }
 }
 
 void Application::play()
 {
+    if(!decoder->isopen()) {
+        return;
+    }
     state = STATE_PLAY;
     cond.notify_all();
 }
@@ -111,7 +149,10 @@ void Application::pause()
 void Application::stop()
 {
     state = STATE_STOP;
-    decoder->close();
+    cond.notify_all();
+    if(decoder->isopen()) {
+        decoder->seek(0);
+    }
     mon->clear();
 }
 

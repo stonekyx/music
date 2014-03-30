@@ -5,6 +5,7 @@
 class Decoder {
     private:
     public:
+        virtual ~Decoder()=0;
         virtual int open(const char *filename)=0;
         virtual void close()=0;
         virtual int read(char *, int)=0;
@@ -15,6 +16,7 @@ class Decoder {
         virtual long current_bitrate()=0;
         virtual char *codec()=0;
         virtual char *codec_profile()=0;
+        virtual bool isopen()=0;
         enum ErrorTypes {
             IP_ERROR_FILE_FORMAT,
             IP_ERROR_UNSUPPORTED_FILE_TYPE,

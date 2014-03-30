@@ -16,7 +16,7 @@ class Monitor {
         Monitor<T>(int, T &eof);
         virtual ~Monitor<T>();
         T &read();
-        void write(const T&);
+        bool write(const T&);
         void clear();
         int get_count();
     protected:
@@ -39,7 +39,7 @@ Monitor<T>::~Monitor()
 template<typename T>
 T &Monitor<T>::read()
 {
-    while(count==0) {
+    if(count==0) {
         boost::this_thread::yield();
         return eof;
     }
@@ -55,10 +55,11 @@ T &Monitor<T>::read()
 }
 
 template<typename T>
-void Monitor<T>::write(const T &t)
+bool Monitor<T>::write(const T &t)
 {
-    while(count==bufsize) {
+    if(count==bufsize) {
         boost::this_thread::yield();
+        return false;
     }
     buf[widx=(widx+1)%bufsize] = t;
     count++;
@@ -67,6 +68,7 @@ void Monitor<T>::write(const T &t)
     std::cout<<"W "<<widx<<"\t"<<t<<std::endl;
     pthread_mutex_unlock(&mutex);*/
 
+    return true;
 }
 
 template<typename T>

@@ -17,6 +17,8 @@ class Application {
         Application();
         Application(int);
         virtual ~Application();
+        int open(const char *);
+        void close();
         void play();
         void pause();
         void stop();
@@ -34,6 +36,7 @@ class Application {
         void init(int);
         Decoder *decoder;
         std::ofstream outfile;
+        bool wait_on_state();
 };
 
 #endif

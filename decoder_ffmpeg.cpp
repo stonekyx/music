@@ -227,9 +227,19 @@ int DecoderFFmpeg::Private::inited = 0;
 
 DecoderFFmpeg::DecoderFFmpeg() {
     priv = new Private(*this);
+    priv->inited=0;
+    priv->codec_context=NULL;
+    priv->input_context=NULL;
+    priv->codec=NULL;
+    priv->swr=NULL;
+    priv->input=NULL;
+    priv->output=NULL;
 }
 
 DecoderFFmpeg::~DecoderFFmpeg() {
+    if(this->isopen()) {
+        this->close();
+    }
     delete priv;
 }
 
@@ -354,6 +364,12 @@ void DecoderFFmpeg::close()
     swr_free(&priv->swr);
     priv->ffmpeg_input_free(priv->input);
     priv->ffmpeg_output_free(priv->output);
+
+    priv->codec_context=NULL;
+    priv->input_context=NULL;
+    priv->swr=NULL;
+    priv->input=NULL;
+    priv->output=NULL;
 }
 
 int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
@@ -503,4 +519,9 @@ char *DecoderFFmpeg::codec_profile()
     const char *profile;
     profile = av_get_profile_name(priv->codec, priv->codec_context->profile);
     return profile ? strdup(profile) : NULL;
+}
+
+bool DecoderFFmpeg::isopen()
+{
+    return priv->input_context;
 }
