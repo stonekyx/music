@@ -1,5 +1,3 @@
-#include <iostream>
-#include <fstream>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 
@@ -45,21 +43,13 @@ void Application::producer() {
         if(!wait_on_state()) {
             continue;
         }
-        if(state==STATE_QUIT) {
-            reset_chunk(&chunk);
-            cout<<"producer exiting..."<<endl;
-            return;
-        }
         if(readnext) {
             reset_chunk(&chunk);
             chunk = new Chunk();
             int err = decoder->read(chunk->buf.get(), chunk->bufsize);
             if(err==0) {
-                cout<<"producer EOF"<<endl;
-                this->quit();
-                delete chunk;
-                cout<<"producer exiting..."<<endl;
-                return;
+                //TODO deal with EOF
+                ms_sleep(50);
             }
             if(err<0) continue;
             chunk->l=0;
@@ -76,23 +66,18 @@ void Application::consumer() {
     bool readnext=true;
     Chunk *chunk=NULL;
     while(1) {
+        if(state==STATE_STOP) {
+            readnext=true;
+        }
         if(!wait_on_state()) {
             continue;
         }
-        if(readnext || state==STATE_STOP) {
+        if(readnext) {
             chunk = &mon->read();
         }
         if(*chunk==eof) {
-            if(state==STATE_QUIT && mon->get_count()==0) {
-                cout<<"consumer exiting..."<<endl;
-                return;
-            }
             ms_sleep(50);
         } else {
-            /*outfile.write(chunk->buf.get(),
-                    chunk->h - chunk->l);
-            outfile.flush();
-            int rc=chunk->h-chunk->l;*/
             int rc = player->write(chunk->buf.get()+chunk->l,
                     chunk->h - chunk->l);
             if(rc>0) {
@@ -100,20 +85,6 @@ void Application::consumer() {
             }
             readnext = (chunk->l>=chunk->h);
         }
-    }
-}
-
-void Application::watcher()
-{
-    int last=0;
-    while(1) {
-        if(state==STATE_QUIT && mon->get_count()<=0) {
-            cout<<"watcher exiting..."<<endl;
-            return;
-        }
-        sleep(1);
-        cout<<mon->statis-last<<"\t"<<mon->get_count()<<endl;
-        last = mon->statis;
     }
 }
 
@@ -132,14 +103,12 @@ void Application::init(int bufsize)
     player->init();
     th_prod = boost::thread(boost::bind(&Application::producer, this));
     th_cons = boost::thread(boost::bind(&Application::consumer, this));
-    th_watch = boost::thread(boost::bind(&Application::watcher, this));
 }
 
 Application::~Application()
 {
     th_prod.join();
     th_cons.join();
-    th_watch.join();
     delete mon;
     delete decoder;
     delete player;
@@ -148,7 +117,6 @@ Application::~Application()
 int Application::open(const char *filename)
 {
     this->close();
-    outfile.open("/tmp/test.wav");
     //state is not changed.
     return decoder->open(filename);
 }
@@ -157,9 +125,6 @@ void Application::close()
 {
     if(decoder->isopen()) {
         decoder->close();
-    }
-    if(outfile.is_open()) {
-        outfile.close();
     }
     if(player->isopen()) {
         player->close();
@@ -188,12 +153,6 @@ void Application::pause()
 void Application::stop()
 {
     state = STATE_STOP;
-    cond.notify_all();
     mon->clear();
-}
-
-void Application::quit()
-{
-    state = STATE_QUIT;
     cond.notify_all();
 }

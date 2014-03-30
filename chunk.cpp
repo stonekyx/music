@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "chunk.h"
 
 using namespace std;

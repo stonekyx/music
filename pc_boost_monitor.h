@@ -1,7 +1,6 @@
 #ifndef PC_BOOST_MONITOR_H
 #define PC_BOOST_MONITOR_H
 
-#include <iostream>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 

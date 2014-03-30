@@ -1,5 +1,4 @@
-#include <iostream>
-
+#include <cstdio>
 #include <termios.h>
 
 #include "pc_boost.h"
@@ -41,7 +40,6 @@ int main(int argc, char *argv[])
         } else if(x=='d') {
             app.stop();
         } else if(x=='f') {
-            app.quit();
             break;
         }
     }
