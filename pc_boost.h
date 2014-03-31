@@ -7,6 +7,7 @@
 #include "decoder.h"
 #include "player.h"
 #include "playlist.h"
+#include "softvol.h"
 
 class Application {
     public:
@@ -22,6 +23,7 @@ class Application {
         void play();
         void pause();
         void stop();
+        void seek(double offset);
     private:
         Monitor<Chunk> *mon;
         Chunk eof;
@@ -29,14 +31,15 @@ class Application {
         void consumer();
         boost::atomic<State> state;
         boost::condition_variable cond;
-        boost::mutex mutex;
+        boost::mutex mutex, mutex_prod, mutex_cons;
         boost::thread th_prod, th_cons;
         void init(int);
         Decoder *decoder;
         Player *player;
-        bool wait_on_state();
+        bool wait_on_state(boost::mutex &);
         void reset_chunk(Chunk **chunk);
         Playlist pl;
+        Softvol softvol;
 };
 
 #endif

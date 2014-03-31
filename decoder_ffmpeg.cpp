@@ -1,4 +1,5 @@
 #include <cstring>
+#include <boost/atomic.hpp>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -36,7 +37,7 @@ class DecoderFFmpeg::Private {
         AVFormatContext *input_context;
         SwrContext *swr;
         int stream_index;
-        sample_format_t sf;
+        boost::atomic<sample_format_t> sf;
         channel_position_t channel_map[CHANNELS_MAX];
         struct ffmpeg_input {
             AVPacket pkt;

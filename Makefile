@@ -5,7 +5,7 @@ LIBS=$(BOOST_LIBS) $(FFMPEG_LIBS)
 
 all: main
 
-obj_main=chunk.o  decoder.o  decoder_ffmpeg.o  pc_boost.o  pc_boost_main.o  decoder_random.o channelmap.o  player.o  player_alsa.o
+obj_main=chunk.o  decoder.o  decoder_ffmpeg.o  pc_boost.o  pc_boost_main.o  decoder_random.o channelmap.o  player.o  player_alsa.o softvol.o playlist.o
 
 main: $(obj_main)
 	g++ $(CFLAGS) $(obj_main) $(LIBS) -o main
@@ -34,5 +34,11 @@ pc_boost_main.o: pc_boost_main.cpp
 channelmap.o: channelmap.c channelmap.h
 	g++ $(CFLAGS) channelmap.c -c
 
-pc_boost.o: pc_boost.cpp pc_boost.h chunk.o pc_boost_monitor.h decoder.o decoder_ffmpeg.o decoder_random.o channelmap.o player.o player_alsa.o
+softvol.o: softvol.cpp softvol.h
+	g++ $(CFLAGS) softvol.cpp -c
+
+playlist.o: playlist.cpp playlist.h
+	g++ $(CFLAGS) playlist.cpp -c
+
+pc_boost.o: pc_boost.cpp pc_boost.h chunk.o pc_boost_monitor.h decoder.o decoder_ffmpeg.o decoder_random.o channelmap.o player.o player_alsa.o softvol.o playlist.o
 	g++ $(CFLAGS) pc_boost.cpp -c
