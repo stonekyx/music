@@ -88,15 +88,18 @@ void Application::consumer() {
     }
 }
 
-Application::Application():eof(Chunk(1))
+Application::Application():
+    eof(Chunk(1)),pl(Playlist())
 { init(128); }
 
-Application::Application(int bufsize):eof(Chunk(1))
+Application::Application(int bufsize):
+    eof(Chunk(1)),pl(Playlist())
 { init(bufsize); }
 
 void Application::init(int bufsize)
 {
     state = STATE_PAUSE;
+    //TODO: pl.load();
     mon = new Monitor<Chunk>(bufsize, eof);
     decoder = new DecoderFFmpeg();
     player = new PlayerALSA();
@@ -107,6 +110,7 @@ void Application::init(int bufsize)
 
 Application::~Application()
 {
+    //TODO: pl.save();
     th_prod.join();
     th_cons.join();
     delete mon;
@@ -131,6 +135,7 @@ void Application::close()
     }
 }
 
+//TODO: play without open: playlist.
 void Application::play()
 {
     if(!decoder->isopen()) {

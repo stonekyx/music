@@ -6,6 +6,7 @@
 #include "chunk.h"
 #include "decoder.h"
 #include "player.h"
+#include "playlist.h"
 
 class Application {
     public:
@@ -35,6 +36,7 @@ class Application {
         Player *player;
         bool wait_on_state();
         void reset_chunk(Chunk **chunk);
+        Playlist pl;
 };
 
 #endif
