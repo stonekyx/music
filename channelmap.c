@@ -46,12 +46,13 @@ void channel_map_init_waveex(int channels, unsigned int mask, channel_position_t
 	if (channels == 1) {
 		map[0] = CHANNEL_POSITION_MONO;
 	} else if (channels > 1 && channels < (int)N_ELEMENTS(channel_map_waveex)) {
+		unsigned int i;
 		int j = 0;
 
 		if (!mask)
 			mask = (1 << channels) - 1;
 
-		for (unsigned i = 0; i < N_ELEMENTS(channel_map_waveex); i++) {
+		for (i = 0; i < N_ELEMENTS(channel_map_waveex); i++) {
 			if (mask & (1 << i))
 				map[j++] = channel_map_waveex[i];
 		}

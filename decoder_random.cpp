@@ -37,7 +37,7 @@ int DecoderRandom::seek(double offset)
     return 0;
 }
 
-int DecoderRandom::read_comments()
+int DecoderRandom::read_comments(const char **, const char **)
 {
     return 0;
 }

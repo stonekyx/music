@@ -11,6 +11,7 @@ class Trackinfo {
         std::string title;
         std::string artist;
         std::string album;
+        void fill(const char *, const char *);
     protected:
 };
 

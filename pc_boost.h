@@ -8,6 +8,7 @@
 #include "player.h"
 #include "playlist.h"
 #include "softvol.h"
+#include "trackinfo.h"
 
 class Application {
     public:
@@ -24,6 +25,7 @@ class Application {
         void pause();
         void stop();
         void seek(double offset);
+        static int read_comments(const char *, Trackinfo &);
     private:
         Monitor<Chunk> *mon;
         Chunk eof;
@@ -35,6 +37,7 @@ class Application {
         boost::thread th_prod, th_cons;
         void init(int);
         Decoder *decoder;
+        static Decoder *comment_decoder;
         Player *player;
         bool wait_on_state(boost::mutex &);
         void reset_chunk(Chunk **chunk);

@@ -21,6 +21,7 @@ class Playlist {
         const Trackinfo &it_get();
         bool it_next();
         void it_reset();
+        void readfile(const char *);
     protected:
         std::vector<Trackinfo>::iterator it;
 };

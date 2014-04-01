@@ -12,9 +12,11 @@ extern "C" {
 }
 
 #include "decoder_ffmpeg.h"
+extern "C" {
 #include "sf.h"
 #include "utils.h"
 #include "channelmap.h"
+}
 
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
@@ -39,6 +41,7 @@ class DecoderFFmpeg::Private {
         int stream_index;
         boost::atomic<sample_format_t> sf;
         channel_position_t channel_map[CHANNELS_MAX];
+        AVDictionaryEntry *tag;
         struct ffmpeg_input {
             AVPacket pkt;
             int curr_pkt_size;
@@ -119,6 +122,7 @@ DecoderFFmpeg::DecoderFFmpeg() {
     priv->input_context=NULL;
     priv->codec=NULL;
     priv->swr=NULL;
+    priv->tag=NULL;
     priv->input=NULL;
     priv->output=NULL;
 }
@@ -355,16 +359,20 @@ int DecoderFFmpeg::seek(double offset)
 }
 
 //TODO Not fully implemented.
-int DecoderFFmpeg::read_comments()
+int DecoderFFmpeg::read_comments(const char **key, const char **value)
 {
-    AVDictionaryEntry *tag = NULL;
-
-    while ((tag = av_dict_get(priv->input_context->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
-        if (tag && tag->value[0]) {
-            //TODO Do something with tag->key and tag->value.
-        }
+    while ((priv->tag =
+                av_dict_get(priv->input_context->metadata,
+                    "", priv->tag, AV_DICT_IGNORE_SUFFIX)) &&
+            !priv->tag->value[0]) {
     }
-    return 0;
+    if(!priv->tag) {
+        return 0;
+    } else {
+        *key = priv->tag->key;
+        *value = priv->tag->value;
+    }
+    return 1;
 }
 
 int DecoderFFmpeg::duration()

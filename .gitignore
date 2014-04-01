@@ -6,3 +6,4 @@ main
 *.ape
 *.mp3
 .vimrc
+*.bak

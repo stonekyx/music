@@ -2,9 +2,11 @@
 
 #define DECODER_FFMPEG_H
 
+extern "C" {
 #include "sf.h"
 #include "channelmap.h"
 #include "decoder.h"
+}
 
 class DecoderFFmpeg : public Decoder {
     private:
@@ -17,7 +19,7 @@ class DecoderFFmpeg : public Decoder {
         void close();
         int read(char *, int);
         int seek(double);
-        int read_comments(); //TODO Not fully implemented.
+        int read_comments(const char **, const char **); //TODO Not fully implemented.
         int duration();
         long bitrate();
         long current_bitrate();

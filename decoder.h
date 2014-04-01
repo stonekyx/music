@@ -13,7 +13,7 @@ class Decoder {
         virtual void close()=0;
         virtual int read(char *, int)=0;
         virtual int seek(double)=0;
-        virtual int read_comments()=0; //TODO Not fully implemented.
+        virtual int read_comments(const char **, const char **)=0; //TODO Not fully implemented.
         virtual int duration()=0;
         virtual long bitrate()=0;
         virtual long current_bitrate()=0;

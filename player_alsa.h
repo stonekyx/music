@@ -2,9 +2,11 @@
 
 #define PLAYER_ALSA_H
 
+extern "C" {
 #include "player.h"
 #include "sf.h"
 #include "channelmap.h"
+}
 
 class PlayerALSA : public Player {
     private:

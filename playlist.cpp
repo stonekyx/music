@@ -1,4 +1,11 @@
+#include <fstream>
+
+#include "pc_boost.h"
 #include "playlist.h"
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 using namespace std;
 
@@ -48,4 +55,16 @@ bool Playlist::it_next()
 void Playlist::it_reset()
 {
     it = data.begin();
+}
+
+void Playlist::readfile(const char *filename)
+{
+    ifstream file(filename);
+    static char buf[PATH_MAX];
+    Trackinfo ti_buf;
+    while(file.getline(buf, PATH_MAX)) {
+        Application::read_comments(buf, ti_buf);
+        this->add(ti_buf);
+    }
+    file.close();
 }

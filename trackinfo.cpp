@@ -1,4 +1,19 @@
+#include <boost/algorithm/string/predicate.hpp>
+
 #include "trackinfo.h"
+
+using namespace std;
+
+void Trackinfo::fill(const char *key, const char *value)
+{
+    if(boost::iequals(key, "title")) {
+        title=value;
+    } else if(boost::iequals(key, "artist")) {
+        artist=value;
+    } else if(boost::iequals(key, "album")) {
+        album=value;
+    }
+}
 
 bool TICTitle::operator()(const Trackinfo &o1, const Trackinfo &o2)
 {

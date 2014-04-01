@@ -5,9 +5,11 @@ extern "C" {
 #include <cstdlib>
 #include <cerrno>
 
+extern "C" {
 #include "sf.h"
 #include "utils.h"
 #include "channelmap.h"
+}
 
 #include "player_alsa.h"
 

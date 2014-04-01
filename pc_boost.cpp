@@ -135,7 +135,8 @@ int Application::open(const char *filename)
 {
     this->close();
     //state is not changed.
-    return decoder->open(filename);
+    int res = decoder->open(filename);
+    return res;
 }
 
 void Application::close()
@@ -188,4 +189,22 @@ void Application::seek(double offset)
 
     mutex_cons.unlock();
     mutex_prod.unlock();
+}
+
+Decoder *Application::comment_decoder = NULL;
+
+int Application::read_comments(const char *filename, Trackinfo &buf)
+{
+    if(comment_decoder==NULL) {
+        comment_decoder = new DecoderFFmpeg();
+    }
+    if(comment_decoder->open(filename)) {
+        return -1;
+    }
+    const char *key, *value;
+    while(comment_decoder->read_comments(&key, &value)) { //have rec
+        buf.fill(key, value);
+    }
+    comment_decoder->close();
+    return 0;
 }

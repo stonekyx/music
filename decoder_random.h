@@ -12,7 +12,7 @@ class DecoderRandom : public Decoder {
         void close();
         int read(char *, int);
         int seek(double);
-        int read_comments();
+        int read_comments(const char **, const char **);
         int duration();
         long bitrate();
         long current_bitrate();
