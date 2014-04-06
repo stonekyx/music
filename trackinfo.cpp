@@ -15,6 +15,11 @@ void Trackinfo::fill(const char *key, const char *value)
     }
 }
 
+bool Trackinfo::operator==(const Trackinfo &o)
+{
+    return this->path.compare(o.path)==0;
+}
+
 bool TICTitle::operator()(const Trackinfo &o1, const Trackinfo &o2)
 {
     int res;

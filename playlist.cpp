@@ -12,7 +12,6 @@ using namespace std;
 Playlist::Playlist():
     data(vector<Trackinfo>())
 {
-    it = data.begin();
 }
 
 Playlist::~Playlist()
@@ -38,23 +37,41 @@ bool Playlist::remove(const string &o)
     return false;
 }
 
-const Trackinfo &Playlist::it_get()
+bool Playlist::remove(unsigned int idx)
 {
-    return *it;
+    if(idx>=data.size()) return false;
+    data.erase(data.begin()+idx);
+    return true;
 }
 
-bool Playlist::it_next()
+void Playlist::clear()
 {
-    if(it!=data.end()) {
-        it++;
-        return true;
-    }
-    return false;
+    data.clear();
 }
 
-void Playlist::it_reset()
+int Playlist::size()
 {
-    it = data.begin();
+    return data.size();
+}
+
+Playlist::iterator Playlist::begin()
+{
+    return data.begin();
+}
+
+Playlist::iterator Playlist::end()
+{
+    return data.end();
+}
+
+Playlist::const_iterator Playlist::begin() const
+{
+    return data.begin();
+}
+
+Playlist::const_iterator Playlist::end() const
+{
+    return data.end();
 }
 
 void Playlist::readfile(const char *filename)
@@ -64,7 +81,18 @@ void Playlist::readfile(const char *filename)
     Trackinfo ti_buf;
     while(file.getline(buf, PATH_MAX)) {
         Application::read_comments(buf, ti_buf);
+        ti_buf.path = buf;
         this->add(ti_buf);
+    }
+    file.close();
+}
+
+void Playlist::save(const char *filename)
+{
+    ofstream file(filename);
+    for(Playlist::iterator it = this->begin();
+            it!=this->end(); it++) {
+        file<<it->path<<endl;
     }
     file.close();
 }

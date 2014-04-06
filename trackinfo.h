@@ -12,6 +12,7 @@ class Trackinfo {
         std::string artist;
         std::string album;
         void fill(const char *, const char *);
+        bool operator==(const Trackinfo &);
     protected:
 };
 

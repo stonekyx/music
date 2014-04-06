@@ -182,3 +182,19 @@ Softvol::Softvol()
     soft_vol_l=100;
     soft_vol_r=100;
 }
+
+void Softvol::set_vol(int l, int r)
+{
+    soft_vol_l = l;
+    soft_vol_r = r;
+}
+
+int Softvol::get_l() const
+{
+    return soft_vol_l;
+}
+
+int Softvol::get_r() const
+{
+    return soft_vol_r;
+}

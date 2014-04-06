@@ -2,19 +2,19 @@
 
 #define CHUNK_H
 
-#include <boost/shared_array.hpp>
-
 class Chunk {
     private:
         void init(int);
     public:
-        boost::shared_array<char> buf;
+        char *buf;
         int l, h;
         int bufsize;
         Chunk();
         Chunk(int);
+        Chunk(const Chunk &);
         ~Chunk();
         bool operator==(const Chunk &) const;
+        Chunk &operator=(const Chunk &);
 };
 
 #endif

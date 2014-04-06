@@ -8,13 +8,12 @@ template<typename T>
 class Monitor {
     private:
         T *buf;
-        boost::atomic<int> ridx, widx, count, bufsize;
-        T &eof;
+        boost::atomic<size_t> head_, tail_, bufsize;
     public:
         int statis;
-        Monitor<T>(int, T &eof);
+        Monitor<T>(int);
         virtual ~Monitor<T>();
-        T &read();
+        bool read(T&);
         bool write(const T&);
         void clear();
         int get_count();
@@ -22,11 +21,11 @@ class Monitor {
 };
 
 template<typename T>
-Monitor<T>::Monitor(int bufsize, T &eof):eof(eof)
+Monitor<T>::Monitor(int bufsize):head_(0), tail_(0)
 {
     this->bufsize = bufsize;
     buf = new T[bufsize];
-    ridx=widx=count=statis=0;
+    statis=0;
 }
 
 template<typename T>
@@ -36,32 +35,33 @@ Monitor<T>::~Monitor()
 }
 
 template<typename T>
-T &Monitor<T>::read()
+bool Monitor<T>::read(T &val)
 {
-    if(count==0) {
-        boost::this_thread::yield();
-        return eof;
+    size_t tail = tail_.load(boost::memory_order_relaxed);
+    if(tail==head_.load(boost::memory_order_acquire)) {
+        return false;
     }
-    ridx=(ridx+1)%bufsize;
-    count--;
+    val = buf[tail];
+    tail_.store((tail+1)%bufsize, boost::memory_order_release);
     statis++;
 
     /*pthread_mutex_lock(&mutex); //avoid chaotic output
     std::cout<<"R "<<ridx<<"\t"<<buffer[ridx]<<std::endl;
     pthread_mutex_unlock(&mutex);*/
 
-    return buf[ridx];
+    return true;
 }
 
 template<typename T>
 bool Monitor<T>::write(const T &t)
 {
-    if(count>=bufsize-1) {
-        boost::this_thread::yield();
+    size_t head = head_.load(boost::memory_order_relaxed);
+    size_t next_head = (head+1)%bufsize;
+    if(next_head == tail_.load(boost::memory_order_acquire)) {
         return false;
     }
-    buf[widx=(widx+1)%bufsize] = t;
-    count++;
+    buf[head] = t;
+    head_.store(next_head, boost::memory_order_release);
 
     /*pthread_mutex_lock(&mutex); //avoid chaotic output
     std::cout<<"W "<<widx<<"\t"<<t<<std::endl;
@@ -73,14 +73,8 @@ bool Monitor<T>::write(const T &t)
 template<typename T>
 void Monitor<T>::clear()
 {
-    count=0;
-    ridx=widx=0;
-}
-
-template<typename T>
-int Monitor<T>::get_count()
-{
-    return count;
+    head_.store(0, boost::memory_order_seq_cst);
+    tail_.store(0, boost::memory_order_seq_cst);
 }
 
 #endif
