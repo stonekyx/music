@@ -265,7 +265,7 @@ void DecoderFFmpeg::close()
 
 int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
 {
-    AVFrame *frame = avcodec_alloc_frame();
+    AVFrame *frame = av_frame_alloc();
     int got_frame;
     while (1) {
         int len;
@@ -274,7 +274,7 @@ int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
             av_free_packet(&input->pkt);
             if (av_read_frame(input_context, &input->pkt) < 0) {
                 /* Force EOF once we can read no longer. */
-                avcodec_free_frame(&frame);
+                av_frame_free(&frame);
                 return 0;
             }
             input->curr_pkt_size = input->pkt.size;
@@ -308,7 +308,7 @@ int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
                 res = 0;
             output->buffer_pos = output->buffer;
             output->buffer_used_len = res * codec_context->channels * sizeof(int16_t);
-            avcodec_free_frame(&frame);
+            av_frame_free(&frame);
             return output->buffer_used_len;
         }
     }
