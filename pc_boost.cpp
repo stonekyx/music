@@ -91,6 +91,7 @@ void Application::consumer() {
             if((got_chunk = mon->read(chunk))) {
                 softvol.scale_samples(chunk.buf,
                         chunk.h-chunk.l, decoder->get_sf());
+                decout.write(chunk.buf, chunk.h-chunk.l);
             }
         }
         if(!got_chunk) {
@@ -114,11 +115,11 @@ void Application::consumer() {
 }
 
 Application::Application():
-    softvol(),pl(),pl_pos(pl.begin())
+    softvol(),pl(),pl_pos(pl.begin()),decout("/tmp/dec.wav")
 { init(128); }
 
 Application::Application(int bufsize):
-    softvol(),pl(),pl_pos(pl.begin())
+    softvol(),pl(),pl_pos(pl.begin()),decout("/tmp/dec.wav")
 { init(bufsize); }
 
 void Application::init(int bufsize)
@@ -143,6 +144,7 @@ Application::~Application()
     delete mon;
     delete decoder;
     delete player;
+    decout.close();
 }
 
 int Application::open(const char *filename)
