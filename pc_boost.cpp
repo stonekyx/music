@@ -4,6 +4,7 @@
 
 #include "decoder_ffmpeg.h"
 #include "player_alsa.h"
+#include "player_sdl.h"
 #include "utils.h"
 
 #include "pc_boost.h"
@@ -106,6 +107,9 @@ void Application::consumer() {
                 chunk.l += rc;
                 consumer_pos += rc;
             }
+            if(rc==0) {
+                ms_sleep(25);
+            }
             cout<<rc<<endl;
             readnext = (chunk.l>=chunk.h);
         }
@@ -129,7 +133,7 @@ void Application::init(int bufsize)
     pl_load();
     mon = new Monitor<Chunk>(bufsize);
     decoder = new DecoderFFmpeg();
-    player = new PlayerALSA();
+    player = new PlayerSDL();
     player->init();
     th_prod = boost::thread(boost::bind(&Application::producer, this));
     th_cons = boost::thread(boost::bind(&Application::consumer, this));
@@ -180,12 +184,16 @@ void Application::play()
     if(!player->isopen()) {
         cout<<"player open"<<endl;
         player->open(decoder->get_sf(), decoder->get_channelmap());
+        ispaused=false;
     }
     cout<<"state play"<<endl;
     state = STATE_PLAY;
     cout<<"playing"<<endl;
     cond.notify_all();
-    player->unpause();
+    if(ispaused) {
+        player->unpause();
+        ispaused=false;
+    }
 }
 
 void Application::pause()
@@ -194,6 +202,7 @@ void Application::pause()
         return;
     }
     player->pause();
+    ispaused=true;
     state = STATE_PAUSE;
     cout<<"pause"<<endl;
 }
@@ -227,17 +236,13 @@ bool Application::next()
     }
 
     mutex_pl.lock();
-    if(pl_moving) {
-        if(pl_pos==pl.end()) {
-            if(pl_cycling) {
-                pl_pos = pl.begin();
-            }
-        } else {
-            pl_pos++;
-        }
+    if(pl_moving && pl_pos!=pl.end()) {
+        pl_pos++;
     }
-    if((pl_moving && pl_pos!=pl.end()) ||
-            pl_cycling) {
+    if(pl_pos==pl.end() && pl_cycling) {
+        pl_pos = pl.begin();
+    }
+    if(pl_pos!=pl.end()) {
         mutex_pl.unlock();
         mutex_prod.unlock();
         this->play();

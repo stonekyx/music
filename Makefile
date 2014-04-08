@@ -25,15 +25,17 @@ CXXFLAGS=-g -Wall -Wextra -std=c++11
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname
 #   option, something like (this will link in libmylib.so and libm.so:
 BOOST_LIBS=-lboost_thread -lboost_atomic -lboost_serialization -lboost_locale -lboost_system -pthread
-FFMPEG_LIBS=-lswresample -lavcodec -lavutil -lavformat -lasound
-LIBS=$(BOOST_LIBS) $(FFMPEG_LIBS)
+FFMPEG_LIBS=-lswresample -lavcodec -lavutil -lavformat
+ALSA_LIBS=-lasound
+SDL_LIBS=-lSDL2
+LIBS=$(BOOST_LIBS) $(FFMPEG_LIBS) $(ALSA_LIBS) $(SDL_LIBS)
 
 # define the C source files
 SRC_C = channelmap.c
 SRC_CXX =   chunk.cpp \
 			decoder.cpp decoder_ffmpeg.cpp decoder_random.cpp \
 			pc_boost.cpp pc_boost_pl.cpp pc_boost_status.cpp \
-			player.cpp player_alsa.cpp \
+			player.cpp player_alsa.cpp player_sdl.cpp \
 			playlist.cpp softvol.cpp trackinfo.cpp \
 			pc_boost_main.cpp
 SRCS = $(SRC_C) $(SRC_CXX)
@@ -100,109 +102,11 @@ channelmap.o: /usr/include/bits/stat.h /usr/include/unistd.h
 channelmap.o: /usr/include/bits/posix_opt.h /usr/include/bits/environments.h
 channelmap.o: /usr/include/bits/confname.h /usr/include/getopt.h
 channelmap.o: /usr/include/stdint.h /usr/include/bits/wchar.h
-chunk.o: chunk.h /usr/include/boost/shared_array.hpp
-chunk.o: /usr/include/boost/smart_ptr/shared_array.hpp
-chunk.o: /usr/include/boost/config.hpp /usr/include/boost/config/user.hpp
-chunk.o: /usr/include/boost/config/select_compiler_config.hpp
-chunk.o: /usr/include/boost/config/compiler/gcc.hpp
-chunk.o: /usr/include/boost/config/select_platform_config.hpp
-chunk.o: /usr/include/boost/config/posix_features.hpp /usr/include/unistd.h
+chunk.o: /usr/include/c++/4.8.2/cstring /usr/include/string.h
 chunk.o: /usr/include/features.h /usr/include/stdc-predef.h
 chunk.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
 chunk.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h
-chunk.o: /usr/include/bits/posix_opt.h /usr/include/bits/environments.h
-chunk.o: /usr/include/bits/types.h /usr/include/bits/typesizes.h
-chunk.o: /usr/include/bits/confname.h /usr/include/getopt.h
-chunk.o: /usr/include/boost/config/suffix.hpp /usr/include/c++/4.8.2/memory
-chunk.o: /usr/include/c++/4.8.2/bits/stl_algobase.h
-chunk.o: /usr/include/c++/4.8.2/bits/functexcept.h
-chunk.o: /usr/include/c++/4.8.2/bits/exception_defines.h
-chunk.o: /usr/include/c++/4.8.2/bits/cpp_type_traits.h
-chunk.o: /usr/include/c++/4.8.2/ext/type_traits.h
-chunk.o: /usr/include/c++/4.8.2/ext/numeric_traits.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_pair.h
-chunk.o: /usr/include/c++/4.8.2/bits/move.h
-chunk.o: /usr/include/c++/4.8.2/bits/concept_check.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_types.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_funcs.h
-chunk.o: /usr/include/c++/4.8.2/debug/debug.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_iterator.h
-chunk.o: /usr/include/c++/4.8.2/bits/allocator.h
-chunk.o: /usr/include/c++/4.8.2/bits/memoryfwd.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_construct.h
-chunk.o: /usr/include/c++/4.8.2/new /usr/include/c++/4.8.2/exception
-chunk.o: /usr/include/c++/4.8.2/bits/atomic_lockfree_defines.h
-chunk.o: /usr/include/c++/4.8.2/ext/alloc_traits.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_uninitialized.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_tempbuf.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_raw_storage_iter.h
-chunk.o: /usr/include/c++/4.8.2/backward/auto_ptr.h
-chunk.o: /usr/include/boost/assert.hpp /usr/include/assert.h
-chunk.o: /usr/include/c++/4.8.2/cstdlib /usr/include/c++/4.8.2/iostream
-chunk.o: /usr/include/c++/4.8.2/ostream /usr/include/c++/4.8.2/ios
-chunk.o: /usr/include/c++/4.8.2/iosfwd
-chunk.o: /usr/include/c++/4.8.2/bits/stringfwd.h
-chunk.o: /usr/include/c++/4.8.2/bits/postypes.h /usr/include/c++/4.8.2/cwchar
-chunk.o: /usr/include/c++/4.8.2/bits/char_traits.h
-chunk.o: /usr/include/c++/4.8.2/bits/localefwd.h
-chunk.o: /usr/include/c++/4.8.2/cctype /usr/include/ctype.h
-chunk.o: /usr/include/endian.h /usr/include/bits/endian.h
-chunk.o: /usr/include/bits/byteswap.h /usr/include/bits/byteswap-16.h
-chunk.o: /usr/include/xlocale.h /usr/include/c++/4.8.2/bits/ios_base.h
-chunk.o: /usr/include/c++/4.8.2/ext/atomicity.h
-chunk.o: /usr/include/c++/4.8.2/bits/locale_classes.h
-chunk.o: /usr/include/c++/4.8.2/string
-chunk.o: /usr/include/c++/4.8.2/bits/ostream_insert.h
-chunk.o: /usr/include/c++/4.8.2/bits/cxxabi_forced.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_function.h
-chunk.o: /usr/include/c++/4.8.2/backward/binders.h
-chunk.o: /usr/include/c++/4.8.2/bits/range_access.h
-chunk.o: /usr/include/c++/4.8.2/bits/basic_string.h
-chunk.o: /usr/include/c++/4.8.2/bits/basic_string.tcc
-chunk.o: /usr/include/c++/4.8.2/bits/locale_classes.tcc
-chunk.o: /usr/include/c++/4.8.2/streambuf
-chunk.o: /usr/include/c++/4.8.2/bits/streambuf.tcc
-chunk.o: /usr/include/c++/4.8.2/bits/basic_ios.h
-chunk.o: /usr/include/c++/4.8.2/bits/locale_facets.h
-chunk.o: /usr/include/c++/4.8.2/cwctype
-chunk.o: /usr/include/c++/4.8.2/bits/streambuf_iterator.h
-chunk.o: /usr/include/c++/4.8.2/bits/locale_facets.tcc
-chunk.o: /usr/include/c++/4.8.2/bits/basic_ios.tcc
-chunk.o: /usr/include/c++/4.8.2/bits/ostream.tcc
-chunk.o: /usr/include/c++/4.8.2/istream
-chunk.o: /usr/include/c++/4.8.2/bits/istream.tcc
-chunk.o: /usr/include/boost/config.hpp
-chunk.o: /usr/include/boost/current_function.hpp
-chunk.o: /usr/include/boost/checked_delete.hpp
-chunk.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
-chunk.o: /usr/include/boost/config/no_tr1/memory.hpp
-chunk.o: /usr/include/boost/throw_exception.hpp
-chunk.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
-chunk.o: /usr/include/boost/detail/workaround.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/shared_count.hpp
-chunk.o: /usr/include/boost/smart_ptr/bad_weak_ptr.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_counted_base.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_has_sync.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_counted_base_gcc_x86.hpp
-chunk.o: /usr/include/boost/detail/sp_typeinfo.hpp
-chunk.o: /usr/include/c++/4.8.2/typeinfo
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_counted_impl.hpp
-chunk.o: /usr/include/c++/4.8.2/cstddef /usr/include/c++/4.8.2/functional
-chunk.o: /usr/include/boost/utility/addressof.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_convertible.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/sp_nullptr_t.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
-chunk.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
-chunk.o: /usr/include/pthread.h /usr/include/sched.h /usr/include/time.h
-chunk.o: /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h
-chunk.o: /usr/include/bits/setjmp.h /usr/include/boost/memory_order.hpp
-chunk.o: /usr/include/c++/4.8.2/algorithm /usr/include/c++/4.8.2/utility
-chunk.o: /usr/include/c++/4.8.2/bits/stl_relops.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_algo.h
-chunk.o: /usr/include/c++/4.8.2/bits/algorithmfwd.h
-chunk.o: /usr/include/c++/4.8.2/bits/stl_heap.h
-chunk.o: /usr/include/boost/smart_ptr/detail/operator_bool.hpp
+chunk.o: /usr/include/xlocale.h chunk.h
 decoder.o: decoder.h sf.h channelmap.h /usr/include/string.h
 decoder.o: /usr/include/features.h /usr/include/stdc-predef.h
 decoder.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
@@ -216,13 +120,31 @@ decoder_ffmpeg.o: /usr/include/xlocale.h /usr/include/boost/atomic.hpp
 decoder_ffmpeg.o: /usr/include/boost/atomic/atomic.hpp
 decoder_ffmpeg.o: /usr/include/c++/4.8.2/cstddef
 decoder_ffmpeg.o: /usr/include/boost/cstdint.hpp
-decoder_ffmpeg.o: /usr/include/boost/config.hpp /usr/include/boost/limits.hpp
-decoder_ffmpeg.o: /usr/include/c++/4.8.2/limits /usr/include/limits.h
-decoder_ffmpeg.o: /usr/include/bits/posix1_lim.h
-decoder_ffmpeg.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-decoder_ffmpeg.o: /usr/include/bits/posix2_lim.h
+decoder_ffmpeg.o: /usr/include/boost/config.hpp
+decoder_ffmpeg.o: /usr/include/boost/config/user.hpp
+decoder_ffmpeg.o: /usr/include/boost/config/select_compiler_config.hpp
+decoder_ffmpeg.o: /usr/include/boost/config/compiler/gcc.hpp
+decoder_ffmpeg.o: /usr/include/boost/config/select_platform_config.hpp
+decoder_ffmpeg.o: /usr/include/boost/config/platform/linux.hpp
+decoder_ffmpeg.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+decoder_ffmpeg.o: /usr/include/bits/waitstatus.h /usr/include/endian.h
+decoder_ffmpeg.o: /usr/include/bits/endian.h /usr/include/bits/byteswap.h
+decoder_ffmpeg.o: /usr/include/bits/types.h /usr/include/bits/typesizes.h
+decoder_ffmpeg.o: /usr/include/bits/byteswap-16.h /usr/include/sys/types.h
+decoder_ffmpeg.o: /usr/include/time.h /usr/include/sys/select.h
+decoder_ffmpeg.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+decoder_ffmpeg.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+decoder_ffmpeg.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+decoder_ffmpeg.o: /usr/include/bits/stdlib-float.h
+decoder_ffmpeg.o: /usr/include/boost/config/posix_features.hpp
+decoder_ffmpeg.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+decoder_ffmpeg.o: /usr/include/bits/environments.h
+decoder_ffmpeg.o: /usr/include/bits/confname.h /usr/include/getopt.h
+decoder_ffmpeg.o: /usr/include/boost/config/suffix.hpp /usr/include/stdint.h
+decoder_ffmpeg.o: /usr/include/bits/wchar.h
 decoder_ffmpeg.o: /usr/include/boost/memory_order.hpp
 decoder_ffmpeg.o: /usr/include/boost/atomic/detail/config.hpp
+decoder_ffmpeg.o: /usr/include/boost/config.hpp
 decoder_ffmpeg.o: /usr/include/boost/atomic/detail/platform.hpp
 decoder_ffmpeg.o: /usr/include/boost/atomic/detail/gcc-x86.hpp
 decoder_ffmpeg.o: /usr/include/boost/atomic/detail/base.hpp
@@ -334,35 +256,27 @@ decoder_ffmpeg.o: /usr/include/libavcodec/avcodec.h /usr/include/errno.h
 decoder_ffmpeg.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
 decoder_ffmpeg.o: /usr/include/asm/errno.h /usr/include/asm-generic/errno.h
 decoder_ffmpeg.o: /usr/include/asm-generic/errno-base.h
-decoder_ffmpeg.o: /usr/include/libavutil/samplefmt.h /usr/include/stdint.h
-decoder_ffmpeg.o: /usr/include/bits/wchar.h /usr/include/libavutil/avutil.h
+decoder_ffmpeg.o: /usr/include/libavutil/samplefmt.h
+decoder_ffmpeg.o: /usr/include/libavutil/avutil.h
 decoder_ffmpeg.o: /usr/include/libavutil/common.h /usr/include/inttypes.h
-decoder_ffmpeg.o: /usr/include/math.h /usr/include/bits/huge_val.h
-decoder_ffmpeg.o: /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h
-decoder_ffmpeg.o: /usr/include/bits/inf.h /usr/include/bits/nan.h
-decoder_ffmpeg.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-decoder_ffmpeg.o: /usr/include/stdio.h /usr/include/bits/types.h
-decoder_ffmpeg.o: /usr/include/bits/typesizes.h /usr/include/libio.h
-decoder_ffmpeg.o: /usr/include/_G_config.h /usr/include/wchar.h
-decoder_ffmpeg.o: /usr/include/bits/stdio_lim.h
-decoder_ffmpeg.o: /usr/include/bits/sys_errlist.h /usr/include/stdlib.h
-decoder_ffmpeg.o: /usr/include/bits/waitflags.h
-decoder_ffmpeg.o: /usr/include/bits/waitstatus.h /usr/include/endian.h
-decoder_ffmpeg.o: /usr/include/bits/endian.h /usr/include/bits/byteswap.h
-decoder_ffmpeg.o: /usr/include/bits/byteswap-16.h /usr/include/sys/types.h
-decoder_ffmpeg.o: /usr/include/time.h /usr/include/sys/select.h
-decoder_ffmpeg.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-decoder_ffmpeg.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
-decoder_ffmpeg.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
-decoder_ffmpeg.o: /usr/include/bits/stdlib-float.h
+decoder_ffmpeg.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+decoder_ffmpeg.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+decoder_ffmpeg.o: /usr/include/bits/posix2_lim.h /usr/include/math.h
+decoder_ffmpeg.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
+decoder_ffmpeg.o: /usr/include/bits/huge_vall.h /usr/include/bits/inf.h
+decoder_ffmpeg.o: /usr/include/bits/nan.h /usr/include/bits/mathdef.h
+decoder_ffmpeg.o: /usr/include/bits/mathcalls.h /usr/include/stdio.h
+decoder_ffmpeg.o: /usr/include/libio.h /usr/include/_G_config.h
+decoder_ffmpeg.o: /usr/include/wchar.h /usr/include/bits/stdio_lim.h
+decoder_ffmpeg.o: /usr/include/bits/sys_errlist.h
 decoder_ffmpeg.o: /usr/include/libavutil/attributes.h
 decoder_ffmpeg.o: /usr/include/libavutil/version.h
+decoder_ffmpeg.o: /usr/include/libavutil/macros.h
 decoder_ffmpeg.o: /usr/include/libavutil/avconfig.h
 decoder_ffmpeg.o: /usr/include/libavutil/mem.h /usr/include/libavutil/error.h
 decoder_ffmpeg.o: /usr/include/libavutil/mathematics.h
 decoder_ffmpeg.o: /usr/include/libavutil/rational.h
 decoder_ffmpeg.o: /usr/include/libavutil/intfloat.h
-decoder_ffmpeg.o: /usr/include/libavutil/intfloat_readwrite.h
 decoder_ffmpeg.o: /usr/include/libavutil/log.h
 decoder_ffmpeg.o: /usr/include/libavutil/pixfmt.h
 decoder_ffmpeg.o: /usr/include/libavutil/old_pix_fmts.h
@@ -373,18 +287,17 @@ decoder_ffmpeg.o: /usr/include/libavutil/cpu.h
 decoder_ffmpeg.o: /usr/include/libavutil/channel_layout.h
 decoder_ffmpeg.o: /usr/include/libavutil/dict.h
 decoder_ffmpeg.o: /usr/include/libavutil/frame.h
-decoder_ffmpeg.o: /usr/include/libavcodec/version.h
 decoder_ffmpeg.o: /usr/include/libavutil/buffer.h
 decoder_ffmpeg.o: /usr/include/libavutil/dict.h
 decoder_ffmpeg.o: /usr/include/libavutil/samplefmt.h
 decoder_ffmpeg.o: /usr/include/libavutil/log.h
 decoder_ffmpeg.o: /usr/include/libavutil/pixfmt.h
 decoder_ffmpeg.o: /usr/include/libavutil/rational.h
-decoder_ffmpeg.o: /usr/include/libavcodec/old_codec_ids.h
-decoder_ffmpeg.o: /usr/include/libavutil/common.h
 decoder_ffmpeg.o: /usr/include/libavformat/avformat.h
 decoder_ffmpeg.o: /usr/include/libavformat/avio.h
+decoder_ffmpeg.o: /usr/include/libavutil/common.h
 decoder_ffmpeg.o: /usr/include/libavformat/version.h
+decoder_ffmpeg.o: /usr/include/libavutil/version.h
 decoder_ffmpeg.o: /usr/include/libavformat/avio.h
 decoder_ffmpeg.o: /usr/include/libswresample/swresample.h
 decoder_ffmpeg.o: /usr/include/libswresample/version.h
@@ -393,10 +306,7 @@ decoder_ffmpeg.o: /usr/include/libavutil/audioconvert.h
 decoder_ffmpeg.o: /usr/include/libavutil/channel_layout.h
 decoder_ffmpeg.o: /usr/include/libavutil/mathematics.h decoder_ffmpeg.h sf.h
 decoder_ffmpeg.o: channelmap.h decoder.h utils.h /usr/include/sys/stat.h
-decoder_ffmpeg.o: /usr/include/bits/stat.h /usr/include/unistd.h
-decoder_ffmpeg.o: /usr/include/bits/posix_opt.h
-decoder_ffmpeg.o: /usr/include/bits/environments.h
-decoder_ffmpeg.o: /usr/include/bits/confname.h /usr/include/getopt.h
+decoder_ffmpeg.o: /usr/include/bits/stat.h
 decoder_random.o: decoder_random.h decoder.h sf.h channelmap.h
 decoder_random.o: /usr/include/string.h /usr/include/features.h
 decoder_random.o: /usr/include/stdc-predef.h /usr/include/sys/cdefs.h
@@ -464,10 +374,24 @@ pc_boost.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
 pc_boost.o: /usr/include/boost/system/error_code.hpp
 pc_boost.o: /usr/include/boost/system/config.hpp
 pc_boost.o: /usr/include/boost/system/api_config.hpp
-pc_boost.o: /usr/include/boost/cstdint.hpp /usr/include/boost/limits.hpp
-pc_boost.o: /usr/include/c++/4.8.2/limits /usr/include/limits.h
-pc_boost.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
-pc_boost.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
+pc_boost.o: /usr/include/boost/cstdint.hpp /usr/include/boost/config.hpp
+pc_boost.o: /usr/include/boost/config/user.hpp
+pc_boost.o: /usr/include/boost/config/select_compiler_config.hpp
+pc_boost.o: /usr/include/boost/config/compiler/gcc.hpp
+pc_boost.o: /usr/include/boost/config/select_platform_config.hpp
+pc_boost.o: /usr/include/boost/config/platform/linux.hpp
+pc_boost.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+pc_boost.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
+pc_boost.o: /usr/include/time.h /usr/include/sys/select.h
+pc_boost.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+pc_boost.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+pc_boost.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+pc_boost.o: /usr/include/bits/stdlib-float.h
+pc_boost.o: /usr/include/boost/config/posix_features.hpp
+pc_boost.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+pc_boost.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
+pc_boost.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
+pc_boost.o: /usr/include/stdint.h /usr/include/bits/wchar.h
 pc_boost.o: /usr/include/boost/assert.hpp /usr/include/c++/4.8.2/cstdlib
 pc_boost.o: /usr/include/c++/4.8.2/iostream /usr/include/c++/4.8.2/ostream
 pc_boost.o: /usr/include/c++/4.8.2/ios /usr/include/c++/4.8.2/bits/ios_base.h
@@ -630,8 +554,8 @@ pc_boost.o: /usr/include/boost/thread/detail/delete.hpp
 pc_boost.o: /usr/include/boost/move/utility.hpp
 pc_boost.o: /usr/include/boost/move/detail/config_begin.hpp
 pc_boost.o: /usr/include/boost/move/core.hpp
-pc_boost.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost.o: /usr/include/boost/move/detail/meta_utils.hpp
+pc_boost.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost.o: /usr/include/boost/move/traits.hpp
 pc_boost.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
 pc_boost.o: /usr/include/boost/type_traits/is_pod.hpp
@@ -658,12 +582,12 @@ pc_boost.o: /usr/include/boost/thread/xtime.hpp
 pc_boost.o: /usr/include/boost/thread/thread_time.hpp
 pc_boost.o: /usr/include/boost/date_time/time_clock.hpp
 pc_boost.o: /usr/include/boost/date_time/c_time.hpp
-pc_boost.o: /usr/include/c++/4.8.2/ctime /usr/include/time.h
+pc_boost.o: /usr/include/c++/4.8.2/ctime
 pc_boost.o: /usr/include/boost/throw_exception.hpp
 pc_boost.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
 pc_boost.o: /usr/include/boost/date_time/compiler_config.hpp
 pc_boost.o: /usr/include/boost/date_time/locale_config.hpp
-pc_boost.o: /usr/include/boost/shared_ptr.hpp
+pc_boost.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
 pc_boost.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
 pc_boost.o: /usr/include/boost/config/no_tr1/memory.hpp
 pc_boost.o: /usr/include/c++/4.8.2/memory
@@ -690,8 +614,8 @@ pc_boost.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
 pc_boost.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
 pc_boost.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
 pc_boost.o: /usr/include/pthread.h /usr/include/sched.h
-pc_boost.o: /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h
-pc_boost.o: /usr/include/bits/setjmp.h /usr/include/boost/memory_order.hpp
+pc_boost.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
+pc_boost.o: /usr/include/boost/memory_order.hpp
 pc_boost.o: /usr/include/c++/4.8.2/algorithm /usr/include/c++/4.8.2/utility
 pc_boost.o: /usr/include/c++/4.8.2/bits/stl_relops.h
 pc_boost.o: /usr/include/c++/4.8.2/bits/stl_algo.h
@@ -704,6 +628,7 @@ pc_boost.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
 pc_boost.o: /usr/include/boost/date_time/posix_time/ptime.hpp
 pc_boost.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
 pc_boost.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+pc_boost.o: /usr/include/boost/limits.hpp /usr/include/c++/4.8.2/limits
 pc_boost.o: /usr/include/boost/config/no_tr1/cmath.hpp
 pc_boost.o: /usr/include/c++/4.8.2/cmath /usr/include/math.h
 pc_boost.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
@@ -778,12 +703,7 @@ pc_boost.o: /usr/include/boost/bind/bind_template.hpp
 pc_boost.o: /usr/include/boost/bind/bind_cc.hpp
 pc_boost.o: /usr/include/boost/bind/bind_mf_cc.hpp
 pc_boost.o: /usr/include/boost/bind/bind_mf2_cc.hpp
-pc_boost.o: /usr/include/boost/bind/placeholders.hpp /usr/include/stdlib.h
-pc_boost.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
-pc_boost.o: /usr/include/sys/types.h /usr/include/sys/select.h
-pc_boost.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-pc_boost.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
-pc_boost.o: /usr/include/alloca.h /usr/include/bits/stdlib-float.h
+pc_boost.o: /usr/include/boost/bind/placeholders.hpp
 pc_boost.o: /usr/include/boost/io/ios_state.hpp /usr/include/boost/io_fwd.hpp
 pc_boost.o: /usr/include/c++/4.8.2/locale
 pc_boost.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
@@ -797,7 +717,9 @@ pc_boost.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
 pc_boost.o: /usr/include/boost/functional/hash/detail/limits.hpp
 pc_boost.o: /usr/include/boost/integer/static_log2.hpp
 pc_boost.o: /usr/include/boost/integer_fwd.hpp /usr/include/c++/4.8.2/climits
-pc_boost.o: /usr/include/c++/4.8.2/typeindex
+pc_boost.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+pc_boost.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+pc_boost.o: /usr/include/bits/posix2_lim.h /usr/include/c++/4.8.2/typeindex
 pc_boost.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
 pc_boost.o: /usr/include/boost/functional/hash/extensions.hpp
 pc_boost.o: /usr/include/boost/detail/container_fwd.hpp
@@ -838,6 +760,9 @@ pc_boost.o: /usr/include/boost/integer_traits.hpp /usr/include/wchar.h
 pc_boost.o: /usr/include/boost/ratio/ratio_fwd.hpp
 pc_boost.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
 pc_boost.o: /usr/include/boost/type_traits/common_type.hpp
+pc_boost.o: /usr/include/boost/typeof/typeof.hpp
+pc_boost.o: /usr/include/boost/typeof/message.hpp
+pc_boost.o: /usr/include/boost/typeof/native.hpp
 pc_boost.o: /usr/include/boost/type_traits/is_floating_point.hpp
 pc_boost.o: /usr/include/boost/type_traits/is_unsigned.hpp
 pc_boost.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
@@ -878,52 +803,6 @@ pc_boost.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
 pc_boost.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
 pc_boost.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
 pc_boost.o: /usr/include/boost/thread/future.hpp
-pc_boost.o: /usr/include/boost/detail/scoped_enum_emulation.hpp
-pc_boost.o: /usr/include/boost/thread/detail/async_func.hpp
-pc_boost.o: /usr/include/boost/exception_ptr.hpp
-pc_boost.o: /usr/include/boost/exception/detail/exception_ptr.hpp
-pc_boost.o: /usr/include/boost/exception/exception.hpp
-pc_boost.o: /usr/include/boost/exception/info.hpp
-pc_boost.o: /usr/include/boost/exception/to_string_stub.hpp
-pc_boost.o: /usr/include/boost/exception/to_string.hpp
-pc_boost.o: /usr/include/boost/exception/detail/is_output_streamable.hpp
-pc_boost.o: /usr/include/boost/exception/detail/object_hex_dump.hpp
-pc_boost.o: /usr/include/boost/exception/detail/type_info.hpp
-pc_boost.o: /usr/include/c++/4.8.2/iomanip
-pc_boost.o: /usr/include/boost/exception/detail/error_info_impl.hpp
-pc_boost.o: /usr/include/boost/exception/diagnostic_information.hpp
-pc_boost.o: /usr/include/boost/exception/get_error_info.hpp
-pc_boost.o: /usr/include/boost/exception/current_exception_cast.hpp
-pc_boost.o: /usr/include/boost/exception/detail/clone_current_exception.hpp
-pc_boost.o: /usr/include/boost/scoped_ptr.hpp
-pc_boost.o: /usr/include/boost/smart_ptr/scoped_ptr.hpp
-pc_boost.o: /usr/include/boost/type_traits/is_fundamental.hpp
-pc_boost.o: /usr/include/boost/function.hpp
-pc_boost.o: /usr/include/boost/preprocessor/iterate.hpp
-pc_boost.o: /usr/include/boost/function/detail/prologue.hpp
-pc_boost.o: /usr/include/boost/config/no_tr1/functional.hpp
-pc_boost.o: /usr/include/boost/function/function_base.hpp
-pc_boost.o: /usr/include/boost/integer.hpp
-pc_boost.o: /usr/include/boost/type_traits/composite_traits.hpp
-pc_boost.o: /usr/include/boost/type_traits/alignment_of.hpp
-pc_boost.o: /usr/include/boost/type_traits/detail/size_t_trait_def.hpp
-pc_boost.o: /usr/include/boost/mpl/size_t.hpp
-pc_boost.o: /usr/include/boost/mpl/size_t_fwd.hpp
-pc_boost.o: /usr/include/boost/type_traits/detail/size_t_trait_undef.hpp
-pc_boost.o: /usr/include/boost/function_equal.hpp
-pc_boost.o: /usr/include/boost/function/function_fwd.hpp
-pc_boost.o: /usr/include/boost/preprocessor/enum.hpp
-pc_boost.o: /usr/include/boost/preprocessor/repetition/enum.hpp
-pc_boost.o: /usr/include/boost/preprocessor/enum_params.hpp
-pc_boost.o: /usr/include/boost/scoped_array.hpp
-pc_boost.o: /usr/include/boost/smart_ptr/scoped_array.hpp
-pc_boost.o: /usr/include/boost/enable_shared_from_this.hpp
-pc_boost.o: /usr/include/boost/smart_ptr/enable_shared_from_this.hpp
-pc_boost.o: /usr/include/boost/smart_ptr/weak_ptr.hpp
-pc_boost.o: /usr/include/boost/next_prior.hpp
-pc_boost.o: /usr/include/boost/thread/future_error_code.hpp
-pc_boost.o: /usr/include/boost/detail/atomic_undef_macros.hpp
-pc_boost.o: /usr/include/boost/detail/atomic_redef_macros.hpp
 pc_boost.o: /usr/include/boost/atomic.hpp
 pc_boost.o: /usr/include/boost/atomic/atomic.hpp
 pc_boost.o: /usr/include/boost/atomic/detail/config.hpp
@@ -935,20 +814,9 @@ pc_boost.o: /usr/include/boost/atomic/detail/link.hpp
 pc_boost.o: /usr/include/boost/atomic/detail/cas64strong.hpp
 pc_boost.o: /usr/include/boost/atomic/detail/type-classification.hpp
 pc_boost.o: /usr/include/boost/type_traits/is_signed.hpp decoder_ffmpeg.h
-pc_boost.o: sf.h channelmap.h decoder.h player_alsa.h player.h utils.h
-pc_boost.o: /usr/include/sys/stat.h /usr/include/bits/stat.h
-pc_boost.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-pc_boost.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
-pc_boost.o: /usr/include/getopt.h /usr/include/stdint.h
-pc_boost.o: /usr/include/bits/wchar.h pc_boost.h pc_boost_monitor.h chunk.h
-pc_boost.o: /usr/include/boost/shared_array.hpp
-pc_boost.o: /usr/include/boost/smart_ptr/shared_array.hpp
-pc_boost.o: /usr/include/boost/config.hpp /usr/include/boost/config/user.hpp
-pc_boost.o: /usr/include/boost/config/select_compiler_config.hpp
-pc_boost.o: /usr/include/boost/config/compiler/gcc.hpp
-pc_boost.o: /usr/include/boost/config/select_platform_config.hpp
-pc_boost.o: /usr/include/boost/config/posix_features.hpp
-pc_boost.o: /usr/include/boost/config/suffix.hpp playlist.h trackinfo.h
+pc_boost.o: sf.h channelmap.h decoder.h player_alsa.h player.h player_sdl.h
+pc_boost.o: utils.h /usr/include/sys/stat.h /usr/include/bits/stat.h
+pc_boost.o: pc_boost.h pc_boost_monitor.h chunk.h playlist.h trackinfo.h
 pc_boost.o: softvol.h
 pc_boost_pl.o: pc_boost.h pc_boost_monitor.h /usr/include/boost/thread.hpp
 pc_boost_pl.o: /usr/include/boost/thread/thread.hpp
@@ -1006,10 +874,24 @@ pc_boost_pl.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
 pc_boost_pl.o: /usr/include/boost/system/error_code.hpp
 pc_boost_pl.o: /usr/include/boost/system/config.hpp
 pc_boost_pl.o: /usr/include/boost/system/api_config.hpp
-pc_boost_pl.o: /usr/include/boost/cstdint.hpp /usr/include/boost/limits.hpp
-pc_boost_pl.o: /usr/include/c++/4.8.2/limits /usr/include/limits.h
-pc_boost_pl.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
-pc_boost_pl.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
+pc_boost_pl.o: /usr/include/boost/cstdint.hpp /usr/include/boost/config.hpp
+pc_boost_pl.o: /usr/include/boost/config/user.hpp
+pc_boost_pl.o: /usr/include/boost/config/select_compiler_config.hpp
+pc_boost_pl.o: /usr/include/boost/config/compiler/gcc.hpp
+pc_boost_pl.o: /usr/include/boost/config/select_platform_config.hpp
+pc_boost_pl.o: /usr/include/boost/config/platform/linux.hpp
+pc_boost_pl.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+pc_boost_pl.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
+pc_boost_pl.o: /usr/include/time.h /usr/include/sys/select.h
+pc_boost_pl.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+pc_boost_pl.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+pc_boost_pl.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+pc_boost_pl.o: /usr/include/bits/stdlib-float.h
+pc_boost_pl.o: /usr/include/boost/config/posix_features.hpp
+pc_boost_pl.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+pc_boost_pl.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
+pc_boost_pl.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
+pc_boost_pl.o: /usr/include/stdint.h /usr/include/bits/wchar.h
 pc_boost_pl.o: /usr/include/boost/assert.hpp /usr/include/c++/4.8.2/cstdlib
 pc_boost_pl.o: /usr/include/c++/4.8.2/iostream /usr/include/c++/4.8.2/ostream
 pc_boost_pl.o: /usr/include/c++/4.8.2/ios
@@ -1178,8 +1060,8 @@ pc_boost_pl.o: /usr/include/boost/thread/detail/delete.hpp
 pc_boost_pl.o: /usr/include/boost/move/utility.hpp
 pc_boost_pl.o: /usr/include/boost/move/detail/config_begin.hpp
 pc_boost_pl.o: /usr/include/boost/move/core.hpp
-pc_boost_pl.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost_pl.o: /usr/include/boost/move/detail/meta_utils.hpp
+pc_boost_pl.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost_pl.o: /usr/include/boost/move/traits.hpp
 pc_boost_pl.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
 pc_boost_pl.o: /usr/include/boost/type_traits/is_pod.hpp
@@ -1206,12 +1088,12 @@ pc_boost_pl.o: /usr/include/boost/thread/xtime.hpp
 pc_boost_pl.o: /usr/include/boost/thread/thread_time.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/time_clock.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/c_time.hpp
-pc_boost_pl.o: /usr/include/c++/4.8.2/ctime /usr/include/time.h
+pc_boost_pl.o: /usr/include/c++/4.8.2/ctime
 pc_boost_pl.o: /usr/include/boost/throw_exception.hpp
 pc_boost_pl.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/compiler_config.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/locale_config.hpp
-pc_boost_pl.o: /usr/include/boost/shared_ptr.hpp
+pc_boost_pl.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
 pc_boost_pl.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
 pc_boost_pl.o: /usr/include/boost/config/no_tr1/memory.hpp
 pc_boost_pl.o: /usr/include/c++/4.8.2/memory
@@ -1238,8 +1120,8 @@ pc_boost_pl.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
 pc_boost_pl.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
 pc_boost_pl.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
 pc_boost_pl.o: /usr/include/pthread.h /usr/include/sched.h
-pc_boost_pl.o: /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h
-pc_boost_pl.o: /usr/include/bits/setjmp.h /usr/include/boost/memory_order.hpp
+pc_boost_pl.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
+pc_boost_pl.o: /usr/include/boost/memory_order.hpp
 pc_boost_pl.o: /usr/include/c++/4.8.2/algorithm
 pc_boost_pl.o: /usr/include/c++/4.8.2/utility
 pc_boost_pl.o: /usr/include/c++/4.8.2/bits/stl_relops.h
@@ -1253,6 +1135,7 @@ pc_boost_pl.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/posix_time/ptime.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
 pc_boost_pl.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+pc_boost_pl.o: /usr/include/boost/limits.hpp /usr/include/c++/4.8.2/limits
 pc_boost_pl.o: /usr/include/boost/config/no_tr1/cmath.hpp
 pc_boost_pl.o: /usr/include/c++/4.8.2/cmath /usr/include/math.h
 pc_boost_pl.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
@@ -1331,12 +1214,7 @@ pc_boost_pl.o: /usr/include/boost/bind/bind_template.hpp
 pc_boost_pl.o: /usr/include/boost/bind/bind_cc.hpp
 pc_boost_pl.o: /usr/include/boost/bind/bind_mf_cc.hpp
 pc_boost_pl.o: /usr/include/boost/bind/bind_mf2_cc.hpp
-pc_boost_pl.o: /usr/include/boost/bind/placeholders.hpp /usr/include/stdlib.h
-pc_boost_pl.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
-pc_boost_pl.o: /usr/include/sys/types.h /usr/include/sys/select.h
-pc_boost_pl.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-pc_boost_pl.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
-pc_boost_pl.o: /usr/include/alloca.h /usr/include/bits/stdlib-float.h
+pc_boost_pl.o: /usr/include/boost/bind/placeholders.hpp
 pc_boost_pl.o: /usr/include/boost/io/ios_state.hpp
 pc_boost_pl.o: /usr/include/boost/io_fwd.hpp /usr/include/c++/4.8.2/locale
 pc_boost_pl.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
@@ -1350,7 +1228,9 @@ pc_boost_pl.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
 pc_boost_pl.o: /usr/include/boost/functional/hash/detail/limits.hpp
 pc_boost_pl.o: /usr/include/boost/integer/static_log2.hpp
 pc_boost_pl.o: /usr/include/boost/integer_fwd.hpp
-pc_boost_pl.o: /usr/include/c++/4.8.2/climits
+pc_boost_pl.o: /usr/include/c++/4.8.2/climits /usr/include/limits.h
+pc_boost_pl.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
+pc_boost_pl.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
 pc_boost_pl.o: /usr/include/c++/4.8.2/typeindex
 pc_boost_pl.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
 pc_boost_pl.o: /usr/include/boost/functional/hash/extensions.hpp
@@ -1395,6 +1275,9 @@ pc_boost_pl.o: /usr/include/boost/integer_traits.hpp /usr/include/wchar.h
 pc_boost_pl.o: /usr/include/boost/ratio/ratio_fwd.hpp
 pc_boost_pl.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
 pc_boost_pl.o: /usr/include/boost/type_traits/common_type.hpp
+pc_boost_pl.o: /usr/include/boost/typeof/typeof.hpp
+pc_boost_pl.o: /usr/include/boost/typeof/message.hpp
+pc_boost_pl.o: /usr/include/boost/typeof/native.hpp
 pc_boost_pl.o: /usr/include/boost/type_traits/is_floating_point.hpp
 pc_boost_pl.o: /usr/include/boost/type_traits/is_unsigned.hpp
 pc_boost_pl.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
@@ -1435,52 +1318,6 @@ pc_boost_pl.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
 pc_boost_pl.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
 pc_boost_pl.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
 pc_boost_pl.o: /usr/include/boost/thread/future.hpp
-pc_boost_pl.o: /usr/include/boost/detail/scoped_enum_emulation.hpp
-pc_boost_pl.o: /usr/include/boost/thread/detail/async_func.hpp
-pc_boost_pl.o: /usr/include/boost/exception_ptr.hpp
-pc_boost_pl.o: /usr/include/boost/exception/detail/exception_ptr.hpp
-pc_boost_pl.o: /usr/include/boost/exception/exception.hpp
-pc_boost_pl.o: /usr/include/boost/exception/info.hpp
-pc_boost_pl.o: /usr/include/boost/exception/to_string_stub.hpp
-pc_boost_pl.o: /usr/include/boost/exception/to_string.hpp
-pc_boost_pl.o: /usr/include/boost/exception/detail/is_output_streamable.hpp
-pc_boost_pl.o: /usr/include/boost/exception/detail/object_hex_dump.hpp
-pc_boost_pl.o: /usr/include/boost/exception/detail/type_info.hpp
-pc_boost_pl.o: /usr/include/c++/4.8.2/iomanip
-pc_boost_pl.o: /usr/include/boost/exception/detail/error_info_impl.hpp
-pc_boost_pl.o: /usr/include/boost/exception/diagnostic_information.hpp
-pc_boost_pl.o: /usr/include/boost/exception/get_error_info.hpp
-pc_boost_pl.o: /usr/include/boost/exception/current_exception_cast.hpp
-pc_boost_pl.o: /usr/include/boost/exception/detail/clone_current_exception.hpp
-pc_boost_pl.o: /usr/include/boost/scoped_ptr.hpp
-pc_boost_pl.o: /usr/include/boost/smart_ptr/scoped_ptr.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/is_fundamental.hpp
-pc_boost_pl.o: /usr/include/boost/function.hpp
-pc_boost_pl.o: /usr/include/boost/preprocessor/iterate.hpp
-pc_boost_pl.o: /usr/include/boost/function/detail/prologue.hpp
-pc_boost_pl.o: /usr/include/boost/config/no_tr1/functional.hpp
-pc_boost_pl.o: /usr/include/boost/function/function_base.hpp
-pc_boost_pl.o: /usr/include/boost/integer.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/composite_traits.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/alignment_of.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/detail/size_t_trait_def.hpp
-pc_boost_pl.o: /usr/include/boost/mpl/size_t.hpp
-pc_boost_pl.o: /usr/include/boost/mpl/size_t_fwd.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/detail/size_t_trait_undef.hpp
-pc_boost_pl.o: /usr/include/boost/function_equal.hpp
-pc_boost_pl.o: /usr/include/boost/function/function_fwd.hpp
-pc_boost_pl.o: /usr/include/boost/preprocessor/enum.hpp
-pc_boost_pl.o: /usr/include/boost/preprocessor/repetition/enum.hpp
-pc_boost_pl.o: /usr/include/boost/preprocessor/enum_params.hpp
-pc_boost_pl.o: /usr/include/boost/scoped_array.hpp
-pc_boost_pl.o: /usr/include/boost/smart_ptr/scoped_array.hpp
-pc_boost_pl.o: /usr/include/boost/enable_shared_from_this.hpp
-pc_boost_pl.o: /usr/include/boost/smart_ptr/enable_shared_from_this.hpp
-pc_boost_pl.o: /usr/include/boost/smart_ptr/weak_ptr.hpp
-pc_boost_pl.o: /usr/include/boost/next_prior.hpp
-pc_boost_pl.o: /usr/include/boost/thread/future_error_code.hpp
-pc_boost_pl.o: /usr/include/boost/detail/atomic_undef_macros.hpp
-pc_boost_pl.o: /usr/include/boost/detail/atomic_redef_macros.hpp
 pc_boost_pl.o: /usr/include/boost/atomic.hpp
 pc_boost_pl.o: /usr/include/boost/atomic/atomic.hpp
 pc_boost_pl.o: /usr/include/boost/atomic/detail/config.hpp
@@ -1491,20 +1328,530 @@ pc_boost_pl.o: /usr/include/boost/atomic/detail/lockpool.hpp
 pc_boost_pl.o: /usr/include/boost/atomic/detail/link.hpp
 pc_boost_pl.o: /usr/include/boost/atomic/detail/cas64strong.hpp
 pc_boost_pl.o: /usr/include/boost/atomic/detail/type-classification.hpp
-pc_boost_pl.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h
-pc_boost_pl.o: /usr/include/boost/shared_array.hpp
-pc_boost_pl.o: /usr/include/boost/smart_ptr/shared_array.hpp
-pc_boost_pl.o: /usr/include/boost/config.hpp
-pc_boost_pl.o: /usr/include/boost/config/user.hpp
-pc_boost_pl.o: /usr/include/boost/config/select_compiler_config.hpp
-pc_boost_pl.o: /usr/include/boost/config/compiler/gcc.hpp
-pc_boost_pl.o: /usr/include/boost/config/select_platform_config.hpp
-pc_boost_pl.o: /usr/include/boost/config/posix_features.hpp
-pc_boost_pl.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-pc_boost_pl.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
-pc_boost_pl.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
-pc_boost_pl.o: decoder.h sf.h channelmap.h player.h playlist.h trackinfo.h
-pc_boost_pl.o: softvol.h
+pc_boost_pl.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h decoder.h
+pc_boost_pl.o: sf.h channelmap.h player.h playlist.h trackinfo.h softvol.h
+pc_boost_status.o: pc_boost.h pc_boost_monitor.h
+pc_boost_status.o: /usr/include/boost/thread.hpp
+pc_boost_status.o: /usr/include/boost/thread/thread.hpp
+pc_boost_status.o: /usr/include/boost/thread/thread_only.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/platform.hpp
+pc_boost_status.o: /usr/include/boost/config.hpp
+pc_boost_status.o: /usr/include/boost/config/requires_threads.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/thread.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/config.hpp
+pc_boost_status.o: /usr/include/boost/detail/workaround.hpp
+pc_boost_status.o: /usr/include/boost/config/auto_link.hpp
+pc_boost_status.o: /usr/include/boost/thread/exceptions.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/string
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stringfwd.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/memoryfwd.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/char_traits.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_algobase.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/functexcept.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/exception_defines.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/cpp_type_traits.h
+pc_boost_status.o: /usr/include/c++/4.8.2/ext/type_traits.h
+pc_boost_status.o: /usr/include/c++/4.8.2/ext/numeric_traits.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_pair.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/move.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/concept_check.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_types.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_funcs.h
+pc_boost_status.o: /usr/include/c++/4.8.2/debug/debug.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_iterator.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/postypes.h
+pc_boost_status.o: /usr/include/c++/4.8.2/cwchar
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/allocator.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/localefwd.h
+pc_boost_status.o: /usr/include/c++/4.8.2/iosfwd
+pc_boost_status.o: /usr/include/c++/4.8.2/cctype /usr/include/ctype.h
+pc_boost_status.o: /usr/include/features.h /usr/include/stdc-predef.h
+pc_boost_status.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+pc_boost_status.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h
+pc_boost_status.o: /usr/include/bits/types.h /usr/include/bits/typesizes.h
+pc_boost_status.o: /usr/include/endian.h /usr/include/bits/endian.h
+pc_boost_status.o: /usr/include/bits/byteswap.h
+pc_boost_status.o: /usr/include/bits/byteswap-16.h /usr/include/xlocale.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/ostream_insert.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/cxxabi_forced.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_function.h
+pc_boost_status.o: /usr/include/c++/4.8.2/backward/binders.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/range_access.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/basic_string.h
+pc_boost_status.o: /usr/include/c++/4.8.2/ext/atomicity.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/basic_string.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/stdexcept
+pc_boost_status.o: /usr/include/c++/4.8.2/exception
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/atomic_lockfree_defines.h
+pc_boost_status.o: /usr/include/boost/system/system_error.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
+pc_boost_status.o: /usr/include/boost/system/error_code.hpp
+pc_boost_status.o: /usr/include/boost/system/config.hpp
+pc_boost_status.o: /usr/include/boost/system/api_config.hpp
+pc_boost_status.o: /usr/include/boost/cstdint.hpp
+pc_boost_status.o: /usr/include/boost/config.hpp
+pc_boost_status.o: /usr/include/boost/config/user.hpp
+pc_boost_status.o: /usr/include/boost/config/select_compiler_config.hpp
+pc_boost_status.o: /usr/include/boost/config/compiler/gcc.hpp
+pc_boost_status.o: /usr/include/boost/config/select_platform_config.hpp
+pc_boost_status.o: /usr/include/boost/config/platform/linux.hpp
+pc_boost_status.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+pc_boost_status.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
+pc_boost_status.o: /usr/include/time.h /usr/include/sys/select.h
+pc_boost_status.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+pc_boost_status.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+pc_boost_status.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+pc_boost_status.o: /usr/include/bits/stdlib-float.h
+pc_boost_status.o: /usr/include/boost/config/posix_features.hpp
+pc_boost_status.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+pc_boost_status.o: /usr/include/bits/environments.h
+pc_boost_status.o: /usr/include/bits/confname.h /usr/include/getopt.h
+pc_boost_status.o: /usr/include/boost/config/suffix.hpp /usr/include/stdint.h
+pc_boost_status.o: /usr/include/bits/wchar.h /usr/include/boost/assert.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/cstdlib
+pc_boost_status.o: /usr/include/c++/4.8.2/iostream
+pc_boost_status.o: /usr/include/c++/4.8.2/ostream /usr/include/c++/4.8.2/ios
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/ios_base.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_classes.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_classes.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/streambuf
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/streambuf.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/basic_ios.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_facets.h
+pc_boost_status.o: /usr/include/c++/4.8.2/cwctype
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/streambuf_iterator.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_facets.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/basic_ios.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/ostream.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/istream
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/istream.tcc
+pc_boost_status.o: /usr/include/boost/current_function.hpp
+pc_boost_status.o: /usr/include/boost/operators.hpp
+pc_boost_status.o: /usr/include/boost/iterator.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/iterator
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stream_iterator.h
+pc_boost_status.o: /usr/include/c++/4.8.2/cstddef
+pc_boost_status.o: /usr/include/boost/noncopyable.hpp
+pc_boost_status.o: /usr/include/boost/utility/enable_if.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/functional
+pc_boost_status.o: /usr/include/boost/cerrno.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/cerrno /usr/include/errno.h
+pc_boost_status.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+pc_boost_status.o: /usr/include/asm/errno.h /usr/include/asm-generic/errno.h
+pc_boost_status.o: /usr/include/asm-generic/errno-base.h
+pc_boost_status.o: /usr/include/boost/config/abi_prefix.hpp
+pc_boost_status.o: /usr/include/boost/config/abi_suffix.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/move.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_convertible.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/intrinsics.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/config.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/yes_no_type.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_array.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/bool_trait_def.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/template_arity_spec.hpp
+pc_boost_status.o: /usr/include/boost/mpl/int.hpp
+pc_boost_status.o: /usr/include/boost/mpl/int_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/adl_barrier.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/adl.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/msvc.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/intel.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/gcc.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/workaround.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/nttp_decl.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/nttp.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/cat.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/config/config.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/integral_wrapper.hpp
+pc_boost_status.o: /usr/include/boost/mpl/integral_c_tag.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/static_constant.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/static_cast.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/template_arity_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/preprocessor/params.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/preprocessor.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/comma_if.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/punctuation/comma_if.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/control/if.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/control/iif.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/logical/bool.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/facilities/empty.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/punctuation/comma.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repeat.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/repeat.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/debug/error.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/detail/auto_rec.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/tuple/eat.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/inc.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/arithmetic/inc.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/lambda.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/ttp.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/ctps.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/overload_resolution.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/integral_constant.hpp
+pc_boost_status.o: /usr/include/boost/mpl/bool.hpp
+pc_boost_status.o: /usr/include/boost/mpl/bool_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/integral_c.hpp
+pc_boost_status.o: /usr/include/boost/mpl/integral_c_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/lambda_support.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/yes_no.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/arrays.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/na_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/preprocessor/enum.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/tuple/to_list.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/facilities/overload.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/variadic/size.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/for_each_i.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/adt.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/detail/is_binary.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/detail/check.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/logical/compl.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/for.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/detail/for.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/control/expr_iif.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/tuple/elem.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/tuple/rem.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/variadic/elem.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/bool_trait_undef.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/ice.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/ice_or.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/ice_and.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/ice_not.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/ice_eq.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_arithmetic.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_integral.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_float.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_void.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_abstract.hpp
+pc_boost_status.o: /usr/include/boost/static_assert.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_class.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_union.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/remove_cv.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/broken_compiler_spec.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/cv_traits_impl.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/type_trait_def.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/type_trait_undef.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/add_lvalue_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/add_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_lvalue_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_rvalue_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/add_rvalue_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_function.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/false_result.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/is_function_ptr_helper.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/remove_reference.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/decay.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/remove_bounds.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/add_pointer.hpp
+pc_boost_status.o: /usr/include/boost/mpl/eval_if.hpp
+pc_boost_status.o: /usr/include/boost/mpl/if.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/value_wknd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/integral.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/eti.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/na_spec.hpp
+pc_boost_status.o: /usr/include/boost/mpl/lambda_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/void_fwd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/na.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/arity.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/dtp.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/preprocessor/def_params_tail.hpp
+pc_boost_status.o: /usr/include/boost/mpl/limits/arity.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/logical/and.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/logical/bitand.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/identity.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/facilities/identity.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/empty.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/arithmetic/add.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/arithmetic/dec.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/control/while.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/fold_left.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/detail/fold_left.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/fold_right.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/detail/fold_right.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/list/reverse.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/control/detail/while.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/arithmetic/sub.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/lambda_arity_param.hpp
+pc_boost_status.o: /usr/include/boost/mpl/identity.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/delete.hpp
+pc_boost_status.o: /usr/include/boost/move/utility.hpp
+pc_boost_status.o: /usr/include/boost/move/detail/config_begin.hpp
+pc_boost_status.o: /usr/include/boost/move/core.hpp
+pc_boost_status.o: /usr/include/boost/move/detail/meta_utils.hpp
+pc_boost_status.o: /usr/include/boost/move/detail/config_end.hpp
+pc_boost_status.o: /usr/include/boost/move/traits.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_pod.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_scalar.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_enum.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_pointer.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_member_pointer.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_member_function_pointer.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_nothrow_move_constructible.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_trivial_move_constructor.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_volatile.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_nothrow_copy.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_trivial_copy.hpp
+pc_boost_status.o: /usr/include/boost/utility/declval.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_nothrow_move_assignable.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_trivial_move_assign.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_const.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_nothrow_assign.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/has_trivial_assign.hpp
+pc_boost_status.o: /usr/include/boost/thread/mutex.hpp
+pc_boost_status.o: /usr/include/boost/thread/lockable_traits.hpp
+pc_boost_status.o: /usr/include/boost/thread/xtime.hpp
+pc_boost_status.o: /usr/include/boost/thread/thread_time.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_clock.hpp
+pc_boost_status.o: /usr/include/boost/date_time/c_time.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/ctime
+pc_boost_status.o: /usr/include/boost/throw_exception.hpp
+pc_boost_status.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
+pc_boost_status.o: /usr/include/boost/date_time/compiler_config.hpp
+pc_boost_status.o: /usr/include/boost/date_time/locale_config.hpp
+pc_boost_status.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
+pc_boost_status.o: /usr/include/boost/config/no_tr1/memory.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/memory
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_construct.h
+pc_boost_status.o: /usr/include/c++/4.8.2/new
+pc_boost_status.o: /usr/include/c++/4.8.2/ext/alloc_traits.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_uninitialized.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_tempbuf.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_raw_storage_iter.h
+pc_boost_status.o: /usr/include/c++/4.8.2/backward/auto_ptr.h
+pc_boost_status.o: /usr/include/boost/checked_delete.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/shared_count.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/bad_weak_ptr.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_counted_base.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_has_sync.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_counted_base_gcc_x86.hpp
+pc_boost_status.o: /usr/include/boost/detail/sp_typeinfo.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/typeinfo
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_counted_impl.hpp
+pc_boost_status.o: /usr/include/boost/utility/addressof.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_convertible.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/sp_nullptr_t.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
+pc_boost_status.o: /usr/include/pthread.h /usr/include/sched.h
+pc_boost_status.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
+pc_boost_status.o: /usr/include/boost/memory_order.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/algorithm
+pc_boost_status.o: /usr/include/c++/4.8.2/utility
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_relops.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_algo.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/algorithmfwd.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_heap.h
+pc_boost_status.o: /usr/include/boost/smart_ptr/detail/operator_bool.hpp
+pc_boost_status.o: /usr/include/boost/date_time/microsec_time_clock.hpp
+pc_boost_status.o: /usr/include/boost/date_time/filetime_functions.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/ptime.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+pc_boost_status.o: /usr/include/boost/limits.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/limits
+pc_boost_status.o: /usr/include/boost/config/no_tr1/cmath.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/cmath /usr/include/math.h
+pc_boost_status.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
+pc_boost_status.o: /usr/include/bits/huge_vall.h /usr/include/bits/inf.h
+pc_boost_status.o: /usr/include/bits/nan.h /usr/include/bits/mathdef.h
+pc_boost_status.o: /usr/include/bits/mathcalls.h
+pc_boost_status.o: /usr/include/boost/date_time/time_duration.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_defs.hpp
+pc_boost_status.o: /usr/include/boost/date_time/special_defs.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_resolution_traits.hpp
+pc_boost_status.o: /usr/include/boost/date_time/int_adapter.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/gregorian_types.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date.hpp
+pc_boost_status.o: /usr/include/boost/date_time/year_month_day.hpp
+pc_boost_status.o: /usr/include/boost/date_time/period.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_calendar.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_weekday.hpp
+pc_boost_status.o: /usr/include/boost/date_time/constrained_value.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_base_of.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_base_and_derived.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_same.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date_defs.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_day_of_year.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian_calendar.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian_calendar.ipp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_ymd.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_day.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_year.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_month.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/map
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_tree.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_map.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_multimap.h
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_duration.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date_duration.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date_duration_types.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_duration_types.hpp
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/greg_date.hpp
+pc_boost_status.o: /usr/include/boost/date_time/adjust_functors.hpp
+pc_boost_status.o: /usr/include/boost/date_time/wrapping_int.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date_generators.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/sstream
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/sstream.tcc
+pc_boost_status.o: /usr/include/boost/date_time/date_clock_device.hpp
+pc_boost_status.o: /usr/include/boost/date_time/date_iterator.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_system_split.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_system_counted.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/date_duration_operators.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/posix_time_duration.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/time_period.hpp
+pc_boost_status.o: /usr/include/boost/date_time/time_iterator.hpp
+pc_boost_status.o: /usr/include/boost/date_time/dst_rules.hpp
+pc_boost_status.o: /usr/include/boost/date_time/posix_time/conversion.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/cstring /usr/include/string.h
+pc_boost_status.o: /usr/include/boost/date_time/gregorian/conversion.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/thread_heap_alloc.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/make_tuple_indices.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/invoke.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/is_convertible.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/list
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_list.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/list.tcc
+pc_boost_status.o: /usr/include/boost/ref.hpp /usr/include/boost/bind.hpp
+pc_boost_status.o: /usr/include/boost/bind/bind.hpp
+pc_boost_status.o: /usr/include/boost/mem_fn.hpp
+pc_boost_status.o: /usr/include/boost/bind/mem_fn.hpp
+pc_boost_status.o: /usr/include/boost/get_pointer.hpp
+pc_boost_status.o: /usr/include/boost/bind/mem_fn_template.hpp
+pc_boost_status.o: /usr/include/boost/bind/mem_fn_cc.hpp
+pc_boost_status.o: /usr/include/boost/type.hpp
+pc_boost_status.o: /usr/include/boost/is_placeholder.hpp
+pc_boost_status.o: /usr/include/boost/bind/arg.hpp
+pc_boost_status.o: /usr/include/boost/visit_each.hpp
+pc_boost_status.o: /usr/include/boost/bind/storage.hpp
+pc_boost_status.o: /usr/include/boost/bind/bind_template.hpp
+pc_boost_status.o: /usr/include/boost/bind/bind_cc.hpp
+pc_boost_status.o: /usr/include/boost/bind/bind_mf_cc.hpp
+pc_boost_status.o: /usr/include/boost/bind/bind_mf2_cc.hpp
+pc_boost_status.o: /usr/include/boost/bind/placeholders.hpp
+pc_boost_status.o: /usr/include/boost/io/ios_state.hpp
+pc_boost_status.o: /usr/include/boost/io_fwd.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/locale
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/codecvt.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.tcc
+pc_boost_status.o: /usr/include/boost/functional/hash.hpp
+pc_boost_status.o: /usr/include/boost/functional/hash/hash.hpp
+pc_boost_status.o: /usr/include/boost/functional/hash/hash_fwd.hpp
+pc_boost_status.o: /usr/include/boost/functional/hash/detail/hash_float.hpp
+pc_boost_status.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
+pc_boost_status.o: /usr/include/boost/functional/hash/detail/limits.hpp
+pc_boost_status.o: /usr/include/boost/integer/static_log2.hpp
+pc_boost_status.o: /usr/include/boost/integer_fwd.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/climits /usr/include/limits.h
+pc_boost_status.o: /usr/include/bits/posix1_lim.h
+pc_boost_status.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+pc_boost_status.o: /usr/include/bits/posix2_lim.h
+pc_boost_status.o: /usr/include/c++/4.8.2/typeindex
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
+pc_boost_status.o: /usr/include/boost/functional/hash/extensions.hpp
+pc_boost_status.o: /usr/include/boost/detail/container_fwd.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/deque
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_deque.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/deque.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/vector
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_vector.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_bvector.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/vector.tcc
+pc_boost_status.o: /usr/include/c++/4.8.2/set
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_set.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bits/stl_multiset.h
+pc_boost_status.o: /usr/include/c++/4.8.2/bitset
+pc_boost_status.o: /usr/include/c++/4.8.2/complex
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/repeat_from_to.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/enum_params.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/array /usr/include/c++/4.8.2/tuple
+pc_boost_status.o: /usr/include/boost/chrono/system_clocks.hpp
+pc_boost_status.o: /usr/include/boost/chrono/config.hpp
+pc_boost_status.o: /usr/include/boost/chrono/duration.hpp
+pc_boost_status.o: /usr/include/boost/chrono/detail/static_assert.hpp
+pc_boost_status.o: /usr/include/boost/mpl/logical.hpp
+pc_boost_status.o: /usr/include/boost/mpl/or.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/use_preprocessed.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/nested_type_wknd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/compiler.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/stringize.hpp
+pc_boost_status.o: /usr/include/boost/mpl/and.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
+pc_boost_status.o: /usr/include/boost/mpl/not.hpp
+pc_boost_status.o: /usr/include/boost/ratio/ratio.hpp
+pc_boost_status.o: /usr/include/boost/ratio/config.hpp
+pc_boost_status.o: /usr/include/boost/ratio/detail/mpl/abs.hpp
+pc_boost_status.o: /usr/include/boost/ratio/detail/mpl/sign.hpp
+pc_boost_status.o: /usr/include/boost/ratio/detail/mpl/gcd.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/largest_int.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/dependent_nttp.hpp
+pc_boost_status.o: /usr/include/boost/ratio/detail/mpl/lcm.hpp
+pc_boost_status.o: /usr/include/boost/integer_traits.hpp /usr/include/wchar.h
+pc_boost_status.o: /usr/include/boost/ratio/ratio_fwd.hpp
+pc_boost_status.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/common_type.hpp
+pc_boost_status.o: /usr/include/boost/typeof/typeof.hpp
+pc_boost_status.o: /usr/include/boost/typeof/message.hpp
+pc_boost_status.o: /usr/include/boost/typeof/native.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_floating_point.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_unsigned.hpp
+pc_boost_status.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
+pc_boost_status.o: /usr/include/boost/chrono/time_point.hpp
+pc_boost_status.o: /usr/include/boost/chrono/detail/system.hpp
+pc_boost_status.o: /usr/include/boost/version.hpp
+pc_boost_status.o: /usr/include/boost/chrono/clock_string.hpp
+pc_boost_status.o: /usr/include/boost/chrono/ceil.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/thread_interruption.hpp
+pc_boost_status.o: /usr/include/boost/thread/v2/thread.hpp
+pc_boost_status.o: /usr/include/boost/thread/condition_variable.hpp
+pc_boost_status.o: /usr/include/boost/thread/lock_types.hpp
+pc_boost_status.o: /usr/include/boost/thread/lock_options.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/thread_group.hpp
+pc_boost_status.o: /usr/include/boost/thread/shared_mutex.hpp
+pc_boost_status.o: /usr/include/boost/thread/lock_guard.hpp
+pc_boost_status.o: /usr/include/boost/thread/detail/lockable_wrapper.hpp
+pc_boost_status.o: /usr/include/c++/4.8.2/initializer_list
+pc_boost_status.o: /usr/include/boost/thread/once.hpp
+pc_boost_status.o: /usr/include/boost/thread/recursive_mutex.hpp
+pc_boost_status.o: /usr/include/boost/thread/tss.hpp
+pc_boost_status.o: /usr/include/boost/thread/locks.hpp
+pc_boost_status.o: /usr/include/boost/thread/lock_algorithms.hpp
+pc_boost_status.o: /usr/include/boost/thread/barrier.hpp
+pc_boost_status.o: /usr/include/boost/utility/result_of.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/iteration/iterate.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/array/elem.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/array/data.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/array/size.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/slot/slot.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/slot/detail/def.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/enum_trailing_params.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/enum_binary_params.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/repetition/enum_shifted_params.hpp
+pc_boost_status.o: /usr/include/boost/preprocessor/facilities/intercept.hpp
+pc_boost_status.o: /usr/include/boost/mpl/has_xxx.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
+pc_boost_status.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
+pc_boost_status.o: /usr/include/boost/thread/future.hpp
+pc_boost_status.o: /usr/include/boost/atomic.hpp
+pc_boost_status.o: /usr/include/boost/atomic/atomic.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/config.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/platform.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/gcc-x86.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/base.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/lockpool.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/link.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/cas64strong.hpp
+pc_boost_status.o: /usr/include/boost/atomic/detail/type-classification.hpp
+pc_boost_status.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h
+pc_boost_status.o: decoder.h sf.h channelmap.h player.h playlist.h
+pc_boost_status.o: trackinfo.h softvol.h
 player.o: player.h sf.h channelmap.h /usr/include/string.h
 player.o: /usr/include/features.h /usr/include/stdc-predef.h
 player.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
@@ -1550,6 +1897,545 @@ player_alsa.o: /usr/include/c++/4.8.2/cstring /usr/include/c++/4.8.2/cstdlib
 player_alsa.o: /usr/include/c++/4.8.2/cerrno sf.h utils.h
 player_alsa.o: /usr/include/sys/stat.h /usr/include/stdint.h
 player_alsa.o: /usr/include/bits/wchar.h channelmap.h player_alsa.h player.h
+player_sdl.o: /usr/include/SDL2/SDL_audio.h /usr/include/SDL2/SDL_stdinc.h
+player_sdl.o: /usr/include/SDL2/SDL_config.h /usr/include/SDL2/SDL_platform.h
+player_sdl.o: /usr/include/SDL2/begin_code.h /usr/include/SDL2/close_code.h
+player_sdl.o: /usr/include/sys/types.h /usr/include/features.h
+player_sdl.o: /usr/include/stdc-predef.h /usr/include/sys/cdefs.h
+player_sdl.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
+player_sdl.o: /usr/include/gnu/stubs-32.h /usr/include/bits/types.h
+player_sdl.o: /usr/include/bits/typesizes.h /usr/include/time.h
+player_sdl.o: /usr/include/endian.h /usr/include/bits/endian.h
+player_sdl.o: /usr/include/bits/byteswap.h /usr/include/bits/byteswap-16.h
+player_sdl.o: /usr/include/sys/select.h /usr/include/bits/select.h
+player_sdl.o: /usr/include/bits/sigset.h /usr/include/bits/time.h
+player_sdl.o: /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h
+player_sdl.o: /usr/include/stdio.h /usr/include/libio.h
+player_sdl.o: /usr/include/_G_config.h /usr/include/wchar.h
+player_sdl.o: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
+player_sdl.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+player_sdl.o: /usr/include/bits/waitstatus.h /usr/include/alloca.h
+player_sdl.o: /usr/include/bits/stdlib-float.h /usr/include/string.h
+player_sdl.o: /usr/include/xlocale.h /usr/include/strings.h
+player_sdl.o: /usr/include/inttypes.h /usr/include/stdint.h
+player_sdl.o: /usr/include/bits/wchar.h /usr/include/ctype.h
+player_sdl.o: /usr/include/math.h /usr/include/bits/huge_val.h
+player_sdl.o: /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h
+player_sdl.o: /usr/include/bits/inf.h /usr/include/bits/nan.h
+player_sdl.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+player_sdl.o: /usr/include/iconv.h /usr/include/SDL2/SDL_error.h
+player_sdl.o: /usr/include/SDL2/SDL_endian.h /usr/include/SDL2/SDL_mutex.h
+player_sdl.o: /usr/include/SDL2/SDL_thread.h /usr/include/SDL2/SDL_atomic.h
+player_sdl.o: /usr/include/SDL2/SDL_rwops.h /usr/include/SDL2/SDL.h
+player_sdl.o: /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_assert.h
+player_sdl.o: /usr/include/SDL2/SDL_audio.h /usr/include/SDL2/SDL_clipboard.h
+player_sdl.o: /usr/include/SDL2/SDL_cpuinfo.h /usr/include/SDL2/SDL_events.h
+player_sdl.o: /usr/include/SDL2/SDL_video.h /usr/include/SDL2/SDL_pixels.h
+player_sdl.o: /usr/include/SDL2/SDL_rect.h /usr/include/SDL2/SDL_surface.h
+player_sdl.o: /usr/include/SDL2/SDL_blendmode.h
+player_sdl.o: /usr/include/SDL2/SDL_keyboard.h
+player_sdl.o: /usr/include/SDL2/SDL_keycode.h
+player_sdl.o: /usr/include/SDL2/SDL_scancode.h /usr/include/SDL2/SDL_mouse.h
+player_sdl.o: /usr/include/SDL2/SDL_joystick.h
+player_sdl.o: /usr/include/SDL2/SDL_gamecontroller.h
+player_sdl.o: /usr/include/SDL2/SDL_quit.h /usr/include/SDL2/SDL_gesture.h
+player_sdl.o: /usr/include/SDL2/SDL_touch.h
+player_sdl.o: /usr/include/SDL2/SDL_filesystem.h
+player_sdl.o: /usr/include/SDL2/SDL_haptic.h /usr/include/SDL2/SDL_hints.h
+player_sdl.o: /usr/include/SDL2/SDL_loadso.h /usr/include/SDL2/SDL_log.h
+player_sdl.o: /usr/include/SDL2/SDL_messagebox.h
+player_sdl.o: /usr/include/SDL2/SDL_power.h /usr/include/SDL2/SDL_render.h
+player_sdl.o: /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h
+player_sdl.o: /usr/include/SDL2/SDL_version.h /usr/include/c++/4.8.2/cstring
+player_sdl.o: pc_boost_monitor.h /usr/include/boost/thread.hpp
+player_sdl.o: /usr/include/boost/thread/thread.hpp
+player_sdl.o: /usr/include/boost/thread/thread_only.hpp
+player_sdl.o: /usr/include/boost/thread/detail/platform.hpp
+player_sdl.o: /usr/include/boost/config.hpp
+player_sdl.o: /usr/include/boost/config/requires_threads.hpp
+player_sdl.o: /usr/include/boost/thread/detail/thread.hpp
+player_sdl.o: /usr/include/boost/thread/detail/config.hpp
+player_sdl.o: /usr/include/boost/detail/workaround.hpp
+player_sdl.o: /usr/include/boost/config/auto_link.hpp
+player_sdl.o: /usr/include/boost/thread/exceptions.hpp
+player_sdl.o: /usr/include/c++/4.8.2/string
+player_sdl.o: /usr/include/c++/4.8.2/bits/stringfwd.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/memoryfwd.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/char_traits.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_algobase.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/functexcept.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/exception_defines.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/cpp_type_traits.h
+player_sdl.o: /usr/include/c++/4.8.2/ext/type_traits.h
+player_sdl.o: /usr/include/c++/4.8.2/ext/numeric_traits.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_pair.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/move.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/concept_check.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_types.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_iterator_base_funcs.h
+player_sdl.o: /usr/include/c++/4.8.2/debug/debug.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_iterator.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/postypes.h
+player_sdl.o: /usr/include/c++/4.8.2/cwchar
+player_sdl.o: /usr/include/c++/4.8.2/bits/allocator.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/localefwd.h
+player_sdl.o: /usr/include/c++/4.8.2/iosfwd /usr/include/c++/4.8.2/cctype
+player_sdl.o: /usr/include/c++/4.8.2/bits/ostream_insert.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/cxxabi_forced.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_function.h
+player_sdl.o: /usr/include/c++/4.8.2/backward/binders.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/range_access.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/basic_string.h
+player_sdl.o: /usr/include/c++/4.8.2/ext/atomicity.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/basic_string.tcc
+player_sdl.o: /usr/include/c++/4.8.2/stdexcept
+player_sdl.o: /usr/include/c++/4.8.2/exception
+player_sdl.o: /usr/include/c++/4.8.2/bits/atomic_lockfree_defines.h
+player_sdl.o: /usr/include/boost/system/system_error.hpp
+player_sdl.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
+player_sdl.o: /usr/include/boost/system/error_code.hpp
+player_sdl.o: /usr/include/boost/system/config.hpp
+player_sdl.o: /usr/include/boost/system/api_config.hpp
+player_sdl.o: /usr/include/boost/cstdint.hpp /usr/include/boost/config.hpp
+player_sdl.o: /usr/include/boost/config/user.hpp
+player_sdl.o: /usr/include/boost/config/select_compiler_config.hpp
+player_sdl.o: /usr/include/boost/config/compiler/gcc.hpp
+player_sdl.o: /usr/include/boost/config/select_platform_config.hpp
+player_sdl.o: /usr/include/boost/config/platform/linux.hpp
+player_sdl.o: /usr/include/boost/config/posix_features.hpp
+player_sdl.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+player_sdl.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
+player_sdl.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
+player_sdl.o: /usr/include/boost/assert.hpp /usr/include/c++/4.8.2/cstdlib
+player_sdl.o: /usr/include/c++/4.8.2/iostream /usr/include/c++/4.8.2/ostream
+player_sdl.o: /usr/include/c++/4.8.2/ios
+player_sdl.o: /usr/include/c++/4.8.2/bits/ios_base.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_classes.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_classes.tcc
+player_sdl.o: /usr/include/c++/4.8.2/streambuf
+player_sdl.o: /usr/include/c++/4.8.2/bits/streambuf.tcc
+player_sdl.o: /usr/include/c++/4.8.2/bits/basic_ios.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_facets.h
+player_sdl.o: /usr/include/c++/4.8.2/cwctype
+player_sdl.o: /usr/include/c++/4.8.2/bits/streambuf_iterator.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_facets.tcc
+player_sdl.o: /usr/include/c++/4.8.2/bits/basic_ios.tcc
+player_sdl.o: /usr/include/c++/4.8.2/bits/ostream.tcc
+player_sdl.o: /usr/include/c++/4.8.2/istream
+player_sdl.o: /usr/include/c++/4.8.2/bits/istream.tcc
+player_sdl.o: /usr/include/boost/current_function.hpp
+player_sdl.o: /usr/include/boost/operators.hpp
+player_sdl.o: /usr/include/boost/iterator.hpp /usr/include/c++/4.8.2/iterator
+player_sdl.o: /usr/include/c++/4.8.2/bits/stream_iterator.h
+player_sdl.o: /usr/include/c++/4.8.2/cstddef
+player_sdl.o: /usr/include/boost/noncopyable.hpp
+player_sdl.o: /usr/include/boost/utility/enable_if.hpp
+player_sdl.o: /usr/include/c++/4.8.2/functional /usr/include/boost/cerrno.hpp
+player_sdl.o: /usr/include/c++/4.8.2/cerrno /usr/include/errno.h
+player_sdl.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+player_sdl.o: /usr/include/asm/errno.h /usr/include/asm-generic/errno.h
+player_sdl.o: /usr/include/asm-generic/errno-base.h
+player_sdl.o: /usr/include/boost/config/abi_prefix.hpp
+player_sdl.o: /usr/include/boost/config/abi_suffix.hpp
+player_sdl.o: /usr/include/boost/thread/detail/move.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_convertible.hpp
+player_sdl.o: /usr/include/boost/type_traits/intrinsics.hpp
+player_sdl.o: /usr/include/boost/type_traits/config.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/yes_no_type.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_array.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/bool_trait_def.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/template_arity_spec.hpp
+player_sdl.o: /usr/include/boost/mpl/int.hpp
+player_sdl.o: /usr/include/boost/mpl/int_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/adl_barrier.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/adl.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/msvc.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/intel.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/gcc.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/workaround.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/nttp_decl.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/nttp.hpp
+player_sdl.o: /usr/include/boost/preprocessor/cat.hpp
+player_sdl.o: /usr/include/boost/preprocessor/config/config.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/integral_wrapper.hpp
+player_sdl.o: /usr/include/boost/mpl/integral_c_tag.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/static_constant.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/static_cast.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/template_arity_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/preprocessor/params.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/preprocessor.hpp
+player_sdl.o: /usr/include/boost/preprocessor/comma_if.hpp
+player_sdl.o: /usr/include/boost/preprocessor/punctuation/comma_if.hpp
+player_sdl.o: /usr/include/boost/preprocessor/control/if.hpp
+player_sdl.o: /usr/include/boost/preprocessor/control/iif.hpp
+player_sdl.o: /usr/include/boost/preprocessor/logical/bool.hpp
+player_sdl.o: /usr/include/boost/preprocessor/facilities/empty.hpp
+player_sdl.o: /usr/include/boost/preprocessor/punctuation/comma.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repeat.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/repeat.hpp
+player_sdl.o: /usr/include/boost/preprocessor/debug/error.hpp
+player_sdl.o: /usr/include/boost/preprocessor/detail/auto_rec.hpp
+player_sdl.o: /usr/include/boost/preprocessor/tuple/eat.hpp
+player_sdl.o: /usr/include/boost/preprocessor/inc.hpp
+player_sdl.o: /usr/include/boost/preprocessor/arithmetic/inc.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/lambda.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/ttp.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/ctps.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/overload_resolution.hpp
+player_sdl.o: /usr/include/boost/type_traits/integral_constant.hpp
+player_sdl.o: /usr/include/boost/mpl/bool.hpp
+player_sdl.o: /usr/include/boost/mpl/bool_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/integral_c.hpp
+player_sdl.o: /usr/include/boost/mpl/integral_c_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/lambda_support.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/yes_no.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/arrays.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/na_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/preprocessor/enum.hpp
+player_sdl.o: /usr/include/boost/preprocessor/tuple/to_list.hpp
+player_sdl.o: /usr/include/boost/preprocessor/facilities/overload.hpp
+player_sdl.o: /usr/include/boost/preprocessor/variadic/size.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/for_each_i.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/adt.hpp
+player_sdl.o: /usr/include/boost/preprocessor/detail/is_binary.hpp
+player_sdl.o: /usr/include/boost/preprocessor/detail/check.hpp
+player_sdl.o: /usr/include/boost/preprocessor/logical/compl.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/for.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/detail/for.hpp
+player_sdl.o: /usr/include/boost/preprocessor/control/expr_iif.hpp
+player_sdl.o: /usr/include/boost/preprocessor/tuple/elem.hpp
+player_sdl.o: /usr/include/boost/preprocessor/tuple/rem.hpp
+player_sdl.o: /usr/include/boost/preprocessor/variadic/elem.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/bool_trait_undef.hpp
+player_sdl.o: /usr/include/boost/type_traits/ice.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/ice_or.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/ice_and.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/ice_not.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/ice_eq.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_arithmetic.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_integral.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_float.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_void.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_abstract.hpp
+player_sdl.o: /usr/include/boost/static_assert.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_class.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_union.hpp
+player_sdl.o: /usr/include/boost/type_traits/remove_cv.hpp
+player_sdl.o: /usr/include/boost/type_traits/broken_compiler_spec.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/cv_traits_impl.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/type_trait_def.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/type_trait_undef.hpp
+player_sdl.o: /usr/include/boost/type_traits/add_lvalue_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/add_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_lvalue_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_rvalue_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/add_rvalue_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_function.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/false_result.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/is_function_ptr_helper.hpp
+player_sdl.o: /usr/include/boost/type_traits/remove_reference.hpp
+player_sdl.o: /usr/include/boost/type_traits/decay.hpp
+player_sdl.o: /usr/include/boost/type_traits/remove_bounds.hpp
+player_sdl.o: /usr/include/boost/type_traits/add_pointer.hpp
+player_sdl.o: /usr/include/boost/mpl/eval_if.hpp
+player_sdl.o: /usr/include/boost/mpl/if.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/value_wknd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/integral.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/eti.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/na_spec.hpp
+player_sdl.o: /usr/include/boost/mpl/lambda_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/void_fwd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/na.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/arity.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/dtp.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/preprocessor/def_params_tail.hpp
+player_sdl.o: /usr/include/boost/mpl/limits/arity.hpp
+player_sdl.o: /usr/include/boost/preprocessor/logical/and.hpp
+player_sdl.o: /usr/include/boost/preprocessor/logical/bitand.hpp
+player_sdl.o: /usr/include/boost/preprocessor/identity.hpp
+player_sdl.o: /usr/include/boost/preprocessor/facilities/identity.hpp
+player_sdl.o: /usr/include/boost/preprocessor/empty.hpp
+player_sdl.o: /usr/include/boost/preprocessor/arithmetic/add.hpp
+player_sdl.o: /usr/include/boost/preprocessor/arithmetic/dec.hpp
+player_sdl.o: /usr/include/boost/preprocessor/control/while.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/fold_left.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/detail/fold_left.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/fold_right.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/detail/fold_right.hpp
+player_sdl.o: /usr/include/boost/preprocessor/list/reverse.hpp
+player_sdl.o: /usr/include/boost/preprocessor/control/detail/while.hpp
+player_sdl.o: /usr/include/boost/preprocessor/arithmetic/sub.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/lambda_arity_param.hpp
+player_sdl.o: /usr/include/boost/mpl/identity.hpp
+player_sdl.o: /usr/include/boost/thread/detail/delete.hpp
+player_sdl.o: /usr/include/boost/move/utility.hpp
+player_sdl.o: /usr/include/boost/move/detail/config_begin.hpp
+player_sdl.o: /usr/include/boost/move/core.hpp
+player_sdl.o: /usr/include/boost/move/detail/meta_utils.hpp
+player_sdl.o: /usr/include/boost/move/detail/config_end.hpp
+player_sdl.o: /usr/include/boost/move/traits.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_pod.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_scalar.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_enum.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_pointer.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_member_pointer.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_member_function_pointer.hpp
+player_sdl.o: /usr/include/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_nothrow_move_constructible.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_trivial_move_constructor.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_volatile.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_nothrow_copy.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_trivial_copy.hpp
+player_sdl.o: /usr/include/boost/utility/declval.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_nothrow_move_assignable.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_trivial_move_assign.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_const.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_nothrow_assign.hpp
+player_sdl.o: /usr/include/boost/type_traits/has_trivial_assign.hpp
+player_sdl.o: /usr/include/boost/thread/mutex.hpp
+player_sdl.o: /usr/include/boost/thread/lockable_traits.hpp
+player_sdl.o: /usr/include/boost/thread/xtime.hpp
+player_sdl.o: /usr/include/boost/thread/thread_time.hpp
+player_sdl.o: /usr/include/boost/date_time/time_clock.hpp
+player_sdl.o: /usr/include/boost/date_time/c_time.hpp
+player_sdl.o: /usr/include/c++/4.8.2/ctime
+player_sdl.o: /usr/include/boost/throw_exception.hpp
+player_sdl.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
+player_sdl.o: /usr/include/boost/date_time/compiler_config.hpp
+player_sdl.o: /usr/include/boost/date_time/locale_config.hpp
+player_sdl.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
+player_sdl.o: /usr/include/boost/config/no_tr1/memory.hpp
+player_sdl.o: /usr/include/c++/4.8.2/memory
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_construct.h
+player_sdl.o: /usr/include/c++/4.8.2/new
+player_sdl.o: /usr/include/c++/4.8.2/ext/alloc_traits.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_uninitialized.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_tempbuf.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_raw_storage_iter.h
+player_sdl.o: /usr/include/c++/4.8.2/backward/auto_ptr.h
+player_sdl.o: /usr/include/boost/checked_delete.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/shared_count.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/bad_weak_ptr.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_counted_base.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_has_sync.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_counted_base_gcc_x86.hpp
+player_sdl.o: /usr/include/boost/detail/sp_typeinfo.hpp
+player_sdl.o: /usr/include/c++/4.8.2/typeinfo
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_counted_impl.hpp
+player_sdl.o: /usr/include/boost/utility/addressof.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_convertible.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/sp_nullptr_t.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
+player_sdl.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
+player_sdl.o: /usr/include/pthread.h /usr/include/sched.h
+player_sdl.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
+player_sdl.o: /usr/include/boost/memory_order.hpp
+player_sdl.o: /usr/include/c++/4.8.2/algorithm /usr/include/c++/4.8.2/utility
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_relops.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_algo.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/algorithmfwd.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_heap.h
+player_sdl.o: /usr/include/boost/smart_ptr/detail/operator_bool.hpp
+player_sdl.o: /usr/include/boost/date_time/microsec_time_clock.hpp
+player_sdl.o: /usr/include/boost/date_time/filetime_functions.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/ptime.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+player_sdl.o: /usr/include/boost/limits.hpp /usr/include/c++/4.8.2/limits
+player_sdl.o: /usr/include/boost/config/no_tr1/cmath.hpp
+player_sdl.o: /usr/include/c++/4.8.2/cmath
+player_sdl.o: /usr/include/boost/date_time/time_duration.hpp
+player_sdl.o: /usr/include/boost/date_time/time_defs.hpp
+player_sdl.o: /usr/include/boost/date_time/special_defs.hpp
+player_sdl.o: /usr/include/boost/date_time/time_resolution_traits.hpp
+player_sdl.o: /usr/include/boost/date_time/int_adapter.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/gregorian_types.hpp
+player_sdl.o: /usr/include/boost/date_time/date.hpp
+player_sdl.o: /usr/include/boost/date_time/year_month_day.hpp
+player_sdl.o: /usr/include/boost/date_time/period.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_calendar.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_weekday.hpp
+player_sdl.o: /usr/include/boost/date_time/constrained_value.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_base_of.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_base_and_derived.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_same.hpp
+player_sdl.o: /usr/include/boost/date_time/date_defs.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_day_of_year.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian_calendar.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian_calendar.ipp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_ymd.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_day.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_year.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_month.hpp
+player_sdl.o: /usr/include/c++/4.8.2/map
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_tree.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_map.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_multimap.h
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_duration.hpp
+player_sdl.o: /usr/include/boost/date_time/date_duration.hpp
+player_sdl.o: /usr/include/boost/date_time/date_duration_types.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_duration_types.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/greg_date.hpp
+player_sdl.o: /usr/include/boost/date_time/adjust_functors.hpp
+player_sdl.o: /usr/include/boost/date_time/wrapping_int.hpp
+player_sdl.o: /usr/include/boost/date_time/date_generators.hpp
+player_sdl.o: /usr/include/c++/4.8.2/sstream
+player_sdl.o: /usr/include/c++/4.8.2/bits/sstream.tcc
+player_sdl.o: /usr/include/boost/date_time/date_clock_device.hpp
+player_sdl.o: /usr/include/boost/date_time/date_iterator.hpp
+player_sdl.o: /usr/include/boost/date_time/time_system_split.hpp
+player_sdl.o: /usr/include/boost/date_time/time_system_counted.hpp
+player_sdl.o: /usr/include/boost/date_time/time.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/date_duration_operators.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/posix_time_duration.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/time_period.hpp
+player_sdl.o: /usr/include/boost/date_time/time_iterator.hpp
+player_sdl.o: /usr/include/boost/date_time/dst_rules.hpp
+player_sdl.o: /usr/include/boost/date_time/posix_time/conversion.hpp
+player_sdl.o: /usr/include/boost/date_time/gregorian/conversion.hpp
+player_sdl.o: /usr/include/boost/thread/detail/thread_heap_alloc.hpp
+player_sdl.o: /usr/include/boost/thread/detail/make_tuple_indices.hpp
+player_sdl.o: /usr/include/boost/thread/detail/invoke.hpp
+player_sdl.o: /usr/include/boost/thread/detail/is_convertible.hpp
+player_sdl.o: /usr/include/c++/4.8.2/list
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_list.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/list.tcc /usr/include/boost/ref.hpp
+player_sdl.o: /usr/include/boost/bind.hpp /usr/include/boost/bind/bind.hpp
+player_sdl.o: /usr/include/boost/mem_fn.hpp
+player_sdl.o: /usr/include/boost/bind/mem_fn.hpp
+player_sdl.o: /usr/include/boost/get_pointer.hpp
+player_sdl.o: /usr/include/boost/bind/mem_fn_template.hpp
+player_sdl.o: /usr/include/boost/bind/mem_fn_cc.hpp
+player_sdl.o: /usr/include/boost/type.hpp
+player_sdl.o: /usr/include/boost/is_placeholder.hpp
+player_sdl.o: /usr/include/boost/bind/arg.hpp
+player_sdl.o: /usr/include/boost/visit_each.hpp
+player_sdl.o: /usr/include/boost/bind/storage.hpp
+player_sdl.o: /usr/include/boost/bind/bind_template.hpp
+player_sdl.o: /usr/include/boost/bind/bind_cc.hpp
+player_sdl.o: /usr/include/boost/bind/bind_mf_cc.hpp
+player_sdl.o: /usr/include/boost/bind/bind_mf2_cc.hpp
+player_sdl.o: /usr/include/boost/bind/placeholders.hpp
+player_sdl.o: /usr/include/boost/io/ios_state.hpp
+player_sdl.o: /usr/include/boost/io_fwd.hpp /usr/include/c++/4.8.2/locale
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/codecvt.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.tcc
+player_sdl.o: /usr/include/boost/functional/hash.hpp
+player_sdl.o: /usr/include/boost/functional/hash/hash.hpp
+player_sdl.o: /usr/include/boost/functional/hash/hash_fwd.hpp
+player_sdl.o: /usr/include/boost/functional/hash/detail/hash_float.hpp
+player_sdl.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
+player_sdl.o: /usr/include/boost/functional/hash/detail/limits.hpp
+player_sdl.o: /usr/include/boost/integer/static_log2.hpp
+player_sdl.o: /usr/include/boost/integer_fwd.hpp
+player_sdl.o: /usr/include/c++/4.8.2/climits /usr/include/limits.h
+player_sdl.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
+player_sdl.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
+player_sdl.o: /usr/include/c++/4.8.2/typeindex
+player_sdl.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
+player_sdl.o: /usr/include/boost/functional/hash/extensions.hpp
+player_sdl.o: /usr/include/boost/detail/container_fwd.hpp
+player_sdl.o: /usr/include/c++/4.8.2/deque
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_deque.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/deque.tcc
+player_sdl.o: /usr/include/c++/4.8.2/vector
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_vector.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_bvector.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/vector.tcc
+player_sdl.o: /usr/include/c++/4.8.2/set
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_set.h
+player_sdl.o: /usr/include/c++/4.8.2/bits/stl_multiset.h
+player_sdl.o: /usr/include/c++/4.8.2/bitset /usr/include/c++/4.8.2/complex
+player_sdl.o: /usr/include/boost/preprocessor/repetition/repeat_from_to.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/enum_params.hpp
+player_sdl.o: /usr/include/c++/4.8.2/array /usr/include/c++/4.8.2/tuple
+player_sdl.o: /usr/include/boost/chrono/system_clocks.hpp
+player_sdl.o: /usr/include/boost/chrono/config.hpp
+player_sdl.o: /usr/include/boost/chrono/duration.hpp
+player_sdl.o: /usr/include/boost/chrono/detail/static_assert.hpp
+player_sdl.o: /usr/include/boost/mpl/logical.hpp
+player_sdl.o: /usr/include/boost/mpl/or.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/use_preprocessed.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/nested_type_wknd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/compiler.hpp
+player_sdl.o: /usr/include/boost/preprocessor/stringize.hpp
+player_sdl.o: /usr/include/boost/mpl/and.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
+player_sdl.o: /usr/include/boost/mpl/not.hpp
+player_sdl.o: /usr/include/boost/ratio/ratio.hpp
+player_sdl.o: /usr/include/boost/ratio/config.hpp
+player_sdl.o: /usr/include/boost/ratio/detail/mpl/abs.hpp
+player_sdl.o: /usr/include/boost/ratio/detail/mpl/sign.hpp
+player_sdl.o: /usr/include/boost/ratio/detail/mpl/gcd.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/largest_int.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/dependent_nttp.hpp
+player_sdl.o: /usr/include/boost/ratio/detail/mpl/lcm.hpp
+player_sdl.o: /usr/include/boost/integer_traits.hpp
+player_sdl.o: /usr/include/boost/ratio/ratio_fwd.hpp
+player_sdl.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
+player_sdl.o: /usr/include/boost/type_traits/common_type.hpp
+player_sdl.o: /usr/include/boost/typeof/typeof.hpp
+player_sdl.o: /usr/include/boost/typeof/message.hpp
+player_sdl.o: /usr/include/boost/typeof/native.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_floating_point.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_unsigned.hpp
+player_sdl.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
+player_sdl.o: /usr/include/boost/chrono/time_point.hpp
+player_sdl.o: /usr/include/boost/chrono/detail/system.hpp
+player_sdl.o: /usr/include/boost/version.hpp
+player_sdl.o: /usr/include/boost/chrono/clock_string.hpp
+player_sdl.o: /usr/include/boost/chrono/ceil.hpp
+player_sdl.o: /usr/include/boost/thread/detail/thread_interruption.hpp
+player_sdl.o: /usr/include/boost/thread/v2/thread.hpp
+player_sdl.o: /usr/include/boost/thread/condition_variable.hpp
+player_sdl.o: /usr/include/boost/thread/lock_types.hpp
+player_sdl.o: /usr/include/boost/thread/lock_options.hpp
+player_sdl.o: /usr/include/boost/thread/detail/thread_group.hpp
+player_sdl.o: /usr/include/boost/thread/shared_mutex.hpp
+player_sdl.o: /usr/include/boost/thread/lock_guard.hpp
+player_sdl.o: /usr/include/boost/thread/detail/lockable_wrapper.hpp
+player_sdl.o: /usr/include/c++/4.8.2/initializer_list
+player_sdl.o: /usr/include/boost/thread/once.hpp
+player_sdl.o: /usr/include/boost/thread/recursive_mutex.hpp
+player_sdl.o: /usr/include/boost/thread/tss.hpp
+player_sdl.o: /usr/include/boost/thread/locks.hpp
+player_sdl.o: /usr/include/boost/thread/lock_algorithms.hpp
+player_sdl.o: /usr/include/boost/thread/barrier.hpp
+player_sdl.o: /usr/include/boost/utility/result_of.hpp
+player_sdl.o: /usr/include/boost/preprocessor/iteration/iterate.hpp
+player_sdl.o: /usr/include/boost/preprocessor/array/elem.hpp
+player_sdl.o: /usr/include/boost/preprocessor/array/data.hpp
+player_sdl.o: /usr/include/boost/preprocessor/array/size.hpp
+player_sdl.o: /usr/include/boost/preprocessor/slot/slot.hpp
+player_sdl.o: /usr/include/boost/preprocessor/slot/detail/def.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/enum_trailing_params.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/enum_binary_params.hpp
+player_sdl.o: /usr/include/boost/preprocessor/repetition/enum_shifted_params.hpp
+player_sdl.o: /usr/include/boost/preprocessor/facilities/intercept.hpp
+player_sdl.o: /usr/include/boost/mpl/has_xxx.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
+player_sdl.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
+player_sdl.o: /usr/include/boost/thread/future.hpp
+player_sdl.o: /usr/include/boost/atomic.hpp
+player_sdl.o: /usr/include/boost/atomic/atomic.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/config.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/platform.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/gcc-x86.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/base.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/lockpool.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/link.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/cas64strong.hpp
+player_sdl.o: /usr/include/boost/atomic/detail/type-classification.hpp
+player_sdl.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h
+player_sdl.o: player_sdl.h player.h sf.h channelmap.h
 playlist.o: /usr/include/c++/4.8.2/fstream /usr/include/c++/4.8.2/istream
 playlist.o: /usr/include/c++/4.8.2/ios /usr/include/c++/4.8.2/iosfwd
 playlist.o: /usr/include/c++/4.8.2/bits/stringfwd.h
@@ -1626,10 +2512,24 @@ playlist.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
 playlist.o: /usr/include/boost/system/error_code.hpp
 playlist.o: /usr/include/boost/system/config.hpp
 playlist.o: /usr/include/boost/system/api_config.hpp
-playlist.o: /usr/include/boost/cstdint.hpp /usr/include/boost/limits.hpp
-playlist.o: /usr/include/c++/4.8.2/limits /usr/include/limits.h
-playlist.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
-playlist.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
+playlist.o: /usr/include/boost/cstdint.hpp /usr/include/boost/config.hpp
+playlist.o: /usr/include/boost/config/user.hpp
+playlist.o: /usr/include/boost/config/select_compiler_config.hpp
+playlist.o: /usr/include/boost/config/compiler/gcc.hpp
+playlist.o: /usr/include/boost/config/select_platform_config.hpp
+playlist.o: /usr/include/boost/config/platform/linux.hpp
+playlist.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+playlist.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
+playlist.o: /usr/include/time.h /usr/include/sys/select.h
+playlist.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+playlist.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+playlist.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+playlist.o: /usr/include/bits/stdlib-float.h
+playlist.o: /usr/include/boost/config/posix_features.hpp
+playlist.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+playlist.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
+playlist.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
+playlist.o: /usr/include/stdint.h /usr/include/bits/wchar.h
 playlist.o: /usr/include/boost/assert.hpp /usr/include/c++/4.8.2/cstdlib
 playlist.o: /usr/include/c++/4.8.2/iostream
 playlist.o: /usr/include/boost/current_function.hpp
@@ -1778,8 +2678,8 @@ playlist.o: /usr/include/boost/thread/detail/delete.hpp
 playlist.o: /usr/include/boost/move/utility.hpp
 playlist.o: /usr/include/boost/move/detail/config_begin.hpp
 playlist.o: /usr/include/boost/move/core.hpp
-playlist.o: /usr/include/boost/move/detail/config_end.hpp
 playlist.o: /usr/include/boost/move/detail/meta_utils.hpp
+playlist.o: /usr/include/boost/move/detail/config_end.hpp
 playlist.o: /usr/include/boost/move/traits.hpp
 playlist.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
 playlist.o: /usr/include/boost/type_traits/is_pod.hpp
@@ -1806,12 +2706,12 @@ playlist.o: /usr/include/boost/thread/xtime.hpp
 playlist.o: /usr/include/boost/thread/thread_time.hpp
 playlist.o: /usr/include/boost/date_time/time_clock.hpp
 playlist.o: /usr/include/boost/date_time/c_time.hpp
-playlist.o: /usr/include/c++/4.8.2/ctime /usr/include/time.h
+playlist.o: /usr/include/c++/4.8.2/ctime
 playlist.o: /usr/include/boost/throw_exception.hpp
 playlist.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
 playlist.o: /usr/include/boost/date_time/compiler_config.hpp
 playlist.o: /usr/include/boost/date_time/locale_config.hpp
-playlist.o: /usr/include/boost/shared_ptr.hpp
+playlist.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
 playlist.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
 playlist.o: /usr/include/boost/config/no_tr1/memory.hpp
 playlist.o: /usr/include/c++/4.8.2/memory
@@ -1838,8 +2738,8 @@ playlist.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
 playlist.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
 playlist.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
 playlist.o: /usr/include/pthread.h /usr/include/sched.h
-playlist.o: /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h
-playlist.o: /usr/include/bits/setjmp.h /usr/include/boost/memory_order.hpp
+playlist.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
+playlist.o: /usr/include/boost/memory_order.hpp
 playlist.o: /usr/include/c++/4.8.2/algorithm /usr/include/c++/4.8.2/utility
 playlist.o: /usr/include/c++/4.8.2/bits/stl_relops.h
 playlist.o: /usr/include/c++/4.8.2/bits/stl_algo.h
@@ -1852,6 +2752,7 @@ playlist.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
 playlist.o: /usr/include/boost/date_time/posix_time/ptime.hpp
 playlist.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
 playlist.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+playlist.o: /usr/include/boost/limits.hpp /usr/include/c++/4.8.2/limits
 playlist.o: /usr/include/boost/config/no_tr1/cmath.hpp
 playlist.o: /usr/include/c++/4.8.2/cmath /usr/include/math.h
 playlist.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
@@ -1926,12 +2827,7 @@ playlist.o: /usr/include/boost/bind/bind_template.hpp
 playlist.o: /usr/include/boost/bind/bind_cc.hpp
 playlist.o: /usr/include/boost/bind/bind_mf_cc.hpp
 playlist.o: /usr/include/boost/bind/bind_mf2_cc.hpp
-playlist.o: /usr/include/boost/bind/placeholders.hpp /usr/include/stdlib.h
-playlist.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
-playlist.o: /usr/include/sys/types.h /usr/include/sys/select.h
-playlist.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-playlist.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
-playlist.o: /usr/include/alloca.h /usr/include/bits/stdlib-float.h
+playlist.o: /usr/include/boost/bind/placeholders.hpp
 playlist.o: /usr/include/boost/io/ios_state.hpp /usr/include/boost/io_fwd.hpp
 playlist.o: /usr/include/c++/4.8.2/locale
 playlist.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
@@ -1944,7 +2840,9 @@ playlist.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
 playlist.o: /usr/include/boost/functional/hash/detail/limits.hpp
 playlist.o: /usr/include/boost/integer/static_log2.hpp
 playlist.o: /usr/include/boost/integer_fwd.hpp /usr/include/c++/4.8.2/climits
-playlist.o: /usr/include/c++/4.8.2/typeindex
+playlist.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+playlist.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+playlist.o: /usr/include/bits/posix2_lim.h /usr/include/c++/4.8.2/typeindex
 playlist.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
 playlist.o: /usr/include/boost/functional/hash/extensions.hpp
 playlist.o: /usr/include/boost/detail/container_fwd.hpp
@@ -1985,6 +2883,9 @@ playlist.o: /usr/include/boost/integer_traits.hpp
 playlist.o: /usr/include/boost/ratio/ratio_fwd.hpp
 playlist.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
 playlist.o: /usr/include/boost/type_traits/common_type.hpp
+playlist.o: /usr/include/boost/typeof/typeof.hpp
+playlist.o: /usr/include/boost/typeof/message.hpp
+playlist.o: /usr/include/boost/typeof/native.hpp
 playlist.o: /usr/include/boost/type_traits/is_floating_point.hpp
 playlist.o: /usr/include/boost/type_traits/is_unsigned.hpp
 playlist.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
@@ -2025,52 +2926,6 @@ playlist.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
 playlist.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
 playlist.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
 playlist.o: /usr/include/boost/thread/future.hpp
-playlist.o: /usr/include/boost/detail/scoped_enum_emulation.hpp
-playlist.o: /usr/include/boost/thread/detail/async_func.hpp
-playlist.o: /usr/include/boost/exception_ptr.hpp
-playlist.o: /usr/include/boost/exception/detail/exception_ptr.hpp
-playlist.o: /usr/include/boost/exception/exception.hpp
-playlist.o: /usr/include/boost/exception/info.hpp
-playlist.o: /usr/include/boost/exception/to_string_stub.hpp
-playlist.o: /usr/include/boost/exception/to_string.hpp
-playlist.o: /usr/include/boost/exception/detail/is_output_streamable.hpp
-playlist.o: /usr/include/boost/exception/detail/object_hex_dump.hpp
-playlist.o: /usr/include/boost/exception/detail/type_info.hpp
-playlist.o: /usr/include/c++/4.8.2/iomanip
-playlist.o: /usr/include/boost/exception/detail/error_info_impl.hpp
-playlist.o: /usr/include/boost/exception/diagnostic_information.hpp
-playlist.o: /usr/include/boost/exception/get_error_info.hpp
-playlist.o: /usr/include/boost/exception/current_exception_cast.hpp
-playlist.o: /usr/include/boost/exception/detail/clone_current_exception.hpp
-playlist.o: /usr/include/boost/scoped_ptr.hpp
-playlist.o: /usr/include/boost/smart_ptr/scoped_ptr.hpp
-playlist.o: /usr/include/boost/type_traits/is_fundamental.hpp
-playlist.o: /usr/include/boost/function.hpp
-playlist.o: /usr/include/boost/preprocessor/iterate.hpp
-playlist.o: /usr/include/boost/function/detail/prologue.hpp
-playlist.o: /usr/include/boost/config/no_tr1/functional.hpp
-playlist.o: /usr/include/boost/function/function_base.hpp
-playlist.o: /usr/include/boost/integer.hpp
-playlist.o: /usr/include/boost/type_traits/composite_traits.hpp
-playlist.o: /usr/include/boost/type_traits/alignment_of.hpp
-playlist.o: /usr/include/boost/type_traits/detail/size_t_trait_def.hpp
-playlist.o: /usr/include/boost/mpl/size_t.hpp
-playlist.o: /usr/include/boost/mpl/size_t_fwd.hpp
-playlist.o: /usr/include/boost/type_traits/detail/size_t_trait_undef.hpp
-playlist.o: /usr/include/boost/function_equal.hpp
-playlist.o: /usr/include/boost/function/function_fwd.hpp
-playlist.o: /usr/include/boost/preprocessor/enum.hpp
-playlist.o: /usr/include/boost/preprocessor/repetition/enum.hpp
-playlist.o: /usr/include/boost/preprocessor/enum_params.hpp
-playlist.o: /usr/include/boost/scoped_array.hpp
-playlist.o: /usr/include/boost/smart_ptr/scoped_array.hpp
-playlist.o: /usr/include/boost/enable_shared_from_this.hpp
-playlist.o: /usr/include/boost/smart_ptr/enable_shared_from_this.hpp
-playlist.o: /usr/include/boost/smart_ptr/weak_ptr.hpp
-playlist.o: /usr/include/boost/next_prior.hpp
-playlist.o: /usr/include/boost/thread/future_error_code.hpp
-playlist.o: /usr/include/boost/detail/atomic_undef_macros.hpp
-playlist.o: /usr/include/boost/detail/atomic_redef_macros.hpp
 playlist.o: /usr/include/boost/atomic.hpp
 playlist.o: /usr/include/boost/atomic/atomic.hpp
 playlist.o: /usr/include/boost/atomic/detail/config.hpp
@@ -2081,19 +2936,8 @@ playlist.o: /usr/include/boost/atomic/detail/lockpool.hpp
 playlist.o: /usr/include/boost/atomic/detail/link.hpp
 playlist.o: /usr/include/boost/atomic/detail/cas64strong.hpp
 playlist.o: /usr/include/boost/atomic/detail/type-classification.hpp
-playlist.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h
-playlist.o: /usr/include/boost/shared_array.hpp
-playlist.o: /usr/include/boost/smart_ptr/shared_array.hpp
-playlist.o: /usr/include/boost/config.hpp /usr/include/boost/config/user.hpp
-playlist.o: /usr/include/boost/config/select_compiler_config.hpp
-playlist.o: /usr/include/boost/config/compiler/gcc.hpp
-playlist.o: /usr/include/boost/config/select_platform_config.hpp
-playlist.o: /usr/include/boost/config/posix_features.hpp
-playlist.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-playlist.o: /usr/include/bits/environments.h /usr/include/bits/confname.h
-playlist.o: /usr/include/getopt.h /usr/include/boost/config/suffix.hpp
-playlist.o: decoder.h sf.h channelmap.h player.h playlist.h trackinfo.h
-playlist.o: softvol.h
+playlist.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h decoder.h
+playlist.o: sf.h channelmap.h player.h playlist.h trackinfo.h softvol.h
 softvol.o: /usr/include/c++/4.8.2/climits /usr/include/limits.h
 softvol.o: /usr/include/features.h /usr/include/stdc-predef.h
 softvol.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
@@ -2118,9 +2962,16 @@ softvol.o: /usr/include/stdint.h /usr/include/bits/wchar.h sf.h compiler.h
 softvol.o: softvol.h /usr/include/boost/atomic.hpp
 softvol.o: /usr/include/boost/atomic/atomic.hpp
 softvol.o: /usr/include/c++/4.8.2/cstddef /usr/include/boost/cstdint.hpp
-softvol.o: /usr/include/boost/config.hpp /usr/include/boost/limits.hpp
-softvol.o: /usr/include/c++/4.8.2/limits /usr/include/boost/memory_order.hpp
+softvol.o: /usr/include/boost/config.hpp /usr/include/boost/config/user.hpp
+softvol.o: /usr/include/boost/config/select_compiler_config.hpp
+softvol.o: /usr/include/boost/config/compiler/gcc.hpp
+softvol.o: /usr/include/boost/config/select_platform_config.hpp
+softvol.o: /usr/include/boost/config/platform/linux.hpp
+softvol.o: /usr/include/boost/config/posix_features.hpp
+softvol.o: /usr/include/boost/config/suffix.hpp
+softvol.o: /usr/include/boost/memory_order.hpp
 softvol.o: /usr/include/boost/atomic/detail/config.hpp
+softvol.o: /usr/include/boost/config.hpp
 softvol.o: /usr/include/boost/atomic/detail/platform.hpp
 softvol.o: /usr/include/boost/atomic/detail/gcc-x86.hpp
 softvol.o: /usr/include/boost/atomic/detail/base.hpp
@@ -2630,11 +3481,26 @@ pc_boost_main.o: /usr/include/c++/4.8.2/cassert /usr/include/assert.h
 pc_boost_main.o: /usr/include/boost/system/error_code.hpp
 pc_boost_main.o: /usr/include/boost/system/config.hpp
 pc_boost_main.o: /usr/include/boost/system/api_config.hpp
-pc_boost_main.o: /usr/include/boost/cstdint.hpp /usr/include/boost/limits.hpp
-pc_boost_main.o: /usr/include/c++/4.8.2/limits /usr/include/limits.h
-pc_boost_main.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
-pc_boost_main.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
-pc_boost_main.o: /usr/include/boost/assert.hpp /usr/include/c++/4.8.2/cstdlib
+pc_boost_main.o: /usr/include/boost/cstdint.hpp /usr/include/boost/config.hpp
+pc_boost_main.o: /usr/include/boost/config/user.hpp
+pc_boost_main.o: /usr/include/boost/config/select_compiler_config.hpp
+pc_boost_main.o: /usr/include/boost/config/compiler/gcc.hpp
+pc_boost_main.o: /usr/include/boost/config/select_platform_config.hpp
+pc_boost_main.o: /usr/include/boost/config/platform/linux.hpp
+pc_boost_main.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
+pc_boost_main.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
+pc_boost_main.o: /usr/include/time.h /usr/include/sys/select.h
+pc_boost_main.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+pc_boost_main.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
+pc_boost_main.o: /usr/include/bits/pthreadtypes.h /usr/include/alloca.h
+pc_boost_main.o: /usr/include/bits/stdlib-float.h
+pc_boost_main.o: /usr/include/boost/config/posix_features.hpp
+pc_boost_main.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+pc_boost_main.o: /usr/include/bits/environments.h
+pc_boost_main.o: /usr/include/bits/confname.h /usr/include/getopt.h
+pc_boost_main.o: /usr/include/boost/config/suffix.hpp /usr/include/stdint.h
+pc_boost_main.o: /usr/include/bits/wchar.h /usr/include/boost/assert.hpp
+pc_boost_main.o: /usr/include/c++/4.8.2/cstdlib
 pc_boost_main.o: /usr/include/c++/4.8.2/iostream
 pc_boost_main.o: /usr/include/c++/4.8.2/ostream /usr/include/c++/4.8.2/ios
 pc_boost_main.o: /usr/include/c++/4.8.2/bits/ios_base.h
@@ -2802,8 +3668,8 @@ pc_boost_main.o: /usr/include/boost/thread/detail/delete.hpp
 pc_boost_main.o: /usr/include/boost/move/utility.hpp
 pc_boost_main.o: /usr/include/boost/move/detail/config_begin.hpp
 pc_boost_main.o: /usr/include/boost/move/core.hpp
-pc_boost_main.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost_main.o: /usr/include/boost/move/detail/meta_utils.hpp
+pc_boost_main.o: /usr/include/boost/move/detail/config_end.hpp
 pc_boost_main.o: /usr/include/boost/move/traits.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/has_trivial_destructor.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/is_pod.hpp
@@ -2830,12 +3696,12 @@ pc_boost_main.o: /usr/include/boost/thread/xtime.hpp
 pc_boost_main.o: /usr/include/boost/thread/thread_time.hpp
 pc_boost_main.o: /usr/include/boost/date_time/time_clock.hpp
 pc_boost_main.o: /usr/include/boost/date_time/c_time.hpp
-pc_boost_main.o: /usr/include/c++/4.8.2/ctime /usr/include/time.h
+pc_boost_main.o: /usr/include/c++/4.8.2/ctime
 pc_boost_main.o: /usr/include/boost/throw_exception.hpp
 pc_boost_main.o: /usr/include/boost/exception/detail/attribute_noreturn.hpp
 pc_boost_main.o: /usr/include/boost/date_time/compiler_config.hpp
 pc_boost_main.o: /usr/include/boost/date_time/locale_config.hpp
-pc_boost_main.o: /usr/include/boost/shared_ptr.hpp
+pc_boost_main.o: /usr/include/sys/time.h /usr/include/boost/shared_ptr.hpp
 pc_boost_main.o: /usr/include/boost/smart_ptr/shared_ptr.hpp
 pc_boost_main.o: /usr/include/boost/config/no_tr1/memory.hpp
 pc_boost_main.o: /usr/include/c++/4.8.2/memory
@@ -2862,8 +3728,7 @@ pc_boost_main.o: /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp
 pc_boost_main.o: /usr/include/boost/smart_ptr/detail/spinlock.hpp
 pc_boost_main.o: /usr/include/boost/smart_ptr/detail/spinlock_pt.hpp
 pc_boost_main.o: /usr/include/pthread.h /usr/include/sched.h
-pc_boost_main.o: /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h
-pc_boost_main.o: /usr/include/bits/setjmp.h
+pc_boost_main.o: /usr/include/bits/sched.h /usr/include/bits/setjmp.h
 pc_boost_main.o: /usr/include/boost/memory_order.hpp
 pc_boost_main.o: /usr/include/c++/4.8.2/algorithm
 pc_boost_main.o: /usr/include/c++/4.8.2/utility
@@ -2878,6 +3743,7 @@ pc_boost_main.o: /usr/include/boost/date_time/posix_time/posix_time_types.hpp
 pc_boost_main.o: /usr/include/boost/date_time/posix_time/ptime.hpp
 pc_boost_main.o: /usr/include/boost/date_time/posix_time/posix_time_system.hpp
 pc_boost_main.o: /usr/include/boost/date_time/posix_time/posix_time_config.hpp
+pc_boost_main.o: /usr/include/boost/limits.hpp /usr/include/c++/4.8.2/limits
 pc_boost_main.o: /usr/include/boost/config/no_tr1/cmath.hpp
 pc_boost_main.o: /usr/include/c++/4.8.2/cmath /usr/include/math.h
 pc_boost_main.o: /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h
@@ -2958,12 +3824,6 @@ pc_boost_main.o: /usr/include/boost/bind/bind_cc.hpp
 pc_boost_main.o: /usr/include/boost/bind/bind_mf_cc.hpp
 pc_boost_main.o: /usr/include/boost/bind/bind_mf2_cc.hpp
 pc_boost_main.o: /usr/include/boost/bind/placeholders.hpp
-pc_boost_main.o: /usr/include/stdlib.h /usr/include/bits/waitflags.h
-pc_boost_main.o: /usr/include/bits/waitstatus.h /usr/include/sys/types.h
-pc_boost_main.o: /usr/include/sys/select.h /usr/include/bits/select.h
-pc_boost_main.o: /usr/include/bits/sigset.h /usr/include/bits/time.h
-pc_boost_main.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-pc_boost_main.o: /usr/include/bits/stdlib-float.h
 pc_boost_main.o: /usr/include/boost/io/ios_state.hpp
 pc_boost_main.o: /usr/include/boost/io_fwd.hpp /usr/include/c++/4.8.2/locale
 pc_boost_main.o: /usr/include/c++/4.8.2/bits/locale_facets_nonio.h
@@ -2977,7 +3837,9 @@ pc_boost_main.o: /usr/include/boost/functional/hash/detail/float_functions.hpp
 pc_boost_main.o: /usr/include/boost/functional/hash/detail/limits.hpp
 pc_boost_main.o: /usr/include/boost/integer/static_log2.hpp
 pc_boost_main.o: /usr/include/boost/integer_fwd.hpp
-pc_boost_main.o: /usr/include/c++/4.8.2/climits
+pc_boost_main.o: /usr/include/c++/4.8.2/climits /usr/include/limits.h
+pc_boost_main.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
+pc_boost_main.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
 pc_boost_main.o: /usr/include/c++/4.8.2/typeindex
 pc_boost_main.o: /usr/include/c++/4.8.2/bits/c++0x_warning.h
 pc_boost_main.o: /usr/include/boost/functional/hash/extensions.hpp
@@ -3022,6 +3884,9 @@ pc_boost_main.o: /usr/include/boost/integer_traits.hpp
 pc_boost_main.o: /usr/include/boost/ratio/ratio_fwd.hpp
 pc_boost_main.o: /usr/include/boost/ratio/detail/overflow_helpers.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/common_type.hpp
+pc_boost_main.o: /usr/include/boost/typeof/typeof.hpp
+pc_boost_main.o: /usr/include/boost/typeof/message.hpp
+pc_boost_main.o: /usr/include/boost/typeof/native.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/is_floating_point.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/is_unsigned.hpp
 pc_boost_main.o: /usr/include/boost/chrono/detail/is_evenly_divisible_by.hpp
@@ -3062,52 +3927,6 @@ pc_boost_main.o: /usr/include/boost/mpl/aux_/type_wrapper.hpp
 pc_boost_main.o: /usr/include/boost/mpl/aux_/config/has_xxx.hpp
 pc_boost_main.o: /usr/include/boost/mpl/aux_/config/msvc_typename.hpp
 pc_boost_main.o: /usr/include/boost/thread/future.hpp
-pc_boost_main.o: /usr/include/boost/detail/scoped_enum_emulation.hpp
-pc_boost_main.o: /usr/include/boost/thread/detail/async_func.hpp
-pc_boost_main.o: /usr/include/boost/exception_ptr.hpp
-pc_boost_main.o: /usr/include/boost/exception/detail/exception_ptr.hpp
-pc_boost_main.o: /usr/include/boost/exception/exception.hpp
-pc_boost_main.o: /usr/include/boost/exception/info.hpp
-pc_boost_main.o: /usr/include/boost/exception/to_string_stub.hpp
-pc_boost_main.o: /usr/include/boost/exception/to_string.hpp
-pc_boost_main.o: /usr/include/boost/exception/detail/is_output_streamable.hpp
-pc_boost_main.o: /usr/include/boost/exception/detail/object_hex_dump.hpp
-pc_boost_main.o: /usr/include/boost/exception/detail/type_info.hpp
-pc_boost_main.o: /usr/include/c++/4.8.2/iomanip
-pc_boost_main.o: /usr/include/boost/exception/detail/error_info_impl.hpp
-pc_boost_main.o: /usr/include/boost/exception/diagnostic_information.hpp
-pc_boost_main.o: /usr/include/boost/exception/get_error_info.hpp
-pc_boost_main.o: /usr/include/boost/exception/current_exception_cast.hpp
-pc_boost_main.o: /usr/include/boost/exception/detail/clone_current_exception.hpp
-pc_boost_main.o: /usr/include/boost/scoped_ptr.hpp
-pc_boost_main.o: /usr/include/boost/smart_ptr/scoped_ptr.hpp
-pc_boost_main.o: /usr/include/boost/type_traits/is_fundamental.hpp
-pc_boost_main.o: /usr/include/boost/function.hpp
-pc_boost_main.o: /usr/include/boost/preprocessor/iterate.hpp
-pc_boost_main.o: /usr/include/boost/function/detail/prologue.hpp
-pc_boost_main.o: /usr/include/boost/config/no_tr1/functional.hpp
-pc_boost_main.o: /usr/include/boost/function/function_base.hpp
-pc_boost_main.o: /usr/include/boost/integer.hpp
-pc_boost_main.o: /usr/include/boost/type_traits/composite_traits.hpp
-pc_boost_main.o: /usr/include/boost/type_traits/alignment_of.hpp
-pc_boost_main.o: /usr/include/boost/type_traits/detail/size_t_trait_def.hpp
-pc_boost_main.o: /usr/include/boost/mpl/size_t.hpp
-pc_boost_main.o: /usr/include/boost/mpl/size_t_fwd.hpp
-pc_boost_main.o: /usr/include/boost/type_traits/detail/size_t_trait_undef.hpp
-pc_boost_main.o: /usr/include/boost/function_equal.hpp
-pc_boost_main.o: /usr/include/boost/function/function_fwd.hpp
-pc_boost_main.o: /usr/include/boost/preprocessor/enum.hpp
-pc_boost_main.o: /usr/include/boost/preprocessor/repetition/enum.hpp
-pc_boost_main.o: /usr/include/boost/preprocessor/enum_params.hpp
-pc_boost_main.o: /usr/include/boost/scoped_array.hpp
-pc_boost_main.o: /usr/include/boost/smart_ptr/scoped_array.hpp
-pc_boost_main.o: /usr/include/boost/enable_shared_from_this.hpp
-pc_boost_main.o: /usr/include/boost/smart_ptr/enable_shared_from_this.hpp
-pc_boost_main.o: /usr/include/boost/smart_ptr/weak_ptr.hpp
-pc_boost_main.o: /usr/include/boost/next_prior.hpp
-pc_boost_main.o: /usr/include/boost/thread/future_error_code.hpp
-pc_boost_main.o: /usr/include/boost/detail/atomic_undef_macros.hpp
-pc_boost_main.o: /usr/include/boost/detail/atomic_redef_macros.hpp
 pc_boost_main.o: /usr/include/boost/atomic.hpp
 pc_boost_main.o: /usr/include/boost/atomic/atomic.hpp
 pc_boost_main.o: /usr/include/boost/atomic/detail/config.hpp
@@ -3119,16 +3938,5 @@ pc_boost_main.o: /usr/include/boost/atomic/detail/link.hpp
 pc_boost_main.o: /usr/include/boost/atomic/detail/cas64strong.hpp
 pc_boost_main.o: /usr/include/boost/atomic/detail/type-classification.hpp
 pc_boost_main.o: /usr/include/boost/type_traits/is_signed.hpp chunk.h
-pc_boost_main.o: /usr/include/boost/shared_array.hpp
-pc_boost_main.o: /usr/include/boost/smart_ptr/shared_array.hpp
-pc_boost_main.o: /usr/include/boost/config.hpp
-pc_boost_main.o: /usr/include/boost/config/user.hpp
-pc_boost_main.o: /usr/include/boost/config/select_compiler_config.hpp
-pc_boost_main.o: /usr/include/boost/config/compiler/gcc.hpp
-pc_boost_main.o: /usr/include/boost/config/select_platform_config.hpp
-pc_boost_main.o: /usr/include/boost/config/posix_features.hpp
-pc_boost_main.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-pc_boost_main.o: /usr/include/bits/environments.h
-pc_boost_main.o: /usr/include/bits/confname.h /usr/include/getopt.h
-pc_boost_main.o: /usr/include/boost/config/suffix.hpp decoder.h sf.h
-pc_boost_main.o: channelmap.h player.h playlist.h trackinfo.h softvol.h
+pc_boost_main.o: decoder.h sf.h channelmap.h player.h playlist.h trackinfo.h
+pc_boost_main.o: softvol.h

@@ -74,6 +74,7 @@ class Application {
         bool pl_moving;
         bool pl_cycling;
         //-------------END MUTEX_PL---------------------
+        bool ispaused;
 };
 
 #endif
