@@ -46,6 +46,7 @@ void Application::producer() {
             int err=0;
             if(decoder->isopen()) {
                 err = decoder->read(chunk.buf, chunk.bufsize);
+                //if(err>0) cout<<"read chunk, size: "<<err<<endl;
             }
             if(err==0) { //EOF or decoder closed
                 if(state==STATE_FLUSHED) {
@@ -92,6 +93,7 @@ void Application::consumer() {
             if((got_chunk = mon->read(chunk))) {
                 softvol.scale_samples(chunk.buf,
                         chunk.h-chunk.l, decoder->get_sf());
+                //fout.write(chunk.buf, chunk.h-chunk.l);
             }
         }
         if(!got_chunk) {
@@ -101,6 +103,7 @@ void Application::consumer() {
             //whether switching to pause/stop depends on producer.
             ms_sleep(50);
         } else {
+            cout<<"ready to write chunk"<<endl;
             int rc = player->write(chunk.buf+chunk.l,
                     chunk.h-chunk.l);
             if(rc>0) {
@@ -127,13 +130,14 @@ Application::Application(int bufsize):
 
 void Application::init(int bufsize)
 {
+    //fout.open("/tmp/out.wav");
     pl_moving = true;
     pl_cycling = true;
     state = STATE_PAUSE;
     pl_load();
     mon = new Monitor<Chunk>(bufsize);
     decoder = new DecoderFFmpeg();
-    player = new PlayerSDL();
+    player = new PlayerALSA();
     player->init();
     th_prod = boost::thread(boost::bind(&Application::producer, this));
     th_cons = boost::thread(boost::bind(&Application::consumer, this));
@@ -147,6 +151,7 @@ Application::~Application()
     delete mon;
     delete decoder;
     delete player;
+    //fout.close();
 }
 
 int Application::open(const char *filename)

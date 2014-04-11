@@ -314,7 +314,7 @@ int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
             if (res < 0)
                 res = 0;
             output->buffer_pos = output->buffer;
-            output->buffer_used_len = res * codec_context->channels * sizeof(int16_t);
+            output->buffer_used_len = res * sf_get_frame_size(this->sf);
 #if (LIBAVCODEC_VERSION_INT >= ((55<<16)+(52<<8)+102))
             av_frame_free(&frame);
 #else

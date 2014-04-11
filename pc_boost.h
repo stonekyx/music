@@ -2,6 +2,8 @@
 
 #define PC_BOOST_H
 
+#include <fstream>
+
 #include "pc_boost_monitor.h"
 #include "chunk.h"
 #include "decoder.h"
@@ -75,6 +77,7 @@ class Application {
         bool pl_cycling;
         //-------------END MUTEX_PL---------------------
         bool ispaused;
+        //std::ofstream fout;
 };
 
 #endif
