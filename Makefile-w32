@@ -6,16 +6,16 @@
 #
 
 # define the C compiler to use
-CC = gcc
-CXX = g++
+CC = $(CROSS)gcc
+CXX = $(CROSS)g++
 
 # define any compile-time flags
 CFLAGS = -Wall -Wextra -g
-CXXFLAGS=-g -Wall -Wextra -std=c++11
+CXXFLAGS=-g -Wall -Wextra -std=c++11 -DBOOST_THREAD_USE_LIB
 
 # define any directories containing header files other than /usr/include
 #
-#INCLUDES = -I/home/newhall/include  -I../include
+#INCLUDES = -I../include
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -25,10 +25,10 @@ CXXFLAGS=-g -Wall -Wextra -std=c++11
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname
 #   option, something like (this will link in libmylib.so and libm.so:
-BOOST_LIBS=-lboost_thread -lboost_atomic -lboost_serialization -lboost_locale -lboost_system -pthread
-FFMPEG_LIBS=-lswresample -lavcodec -lavutil -lavformat
-ALSA_LIBS=-lasound
-SDL_LIBS=-lSDL2
+BOOST_LIBS=-lboost_thread_win32-mt -lboost_thread_win32-mt-d -lboost_chrono-mt -lboost_atomic-mt -lboost_serialization-mt -lboost_locale-mt -lboost_system-mt -pthread
+FFMPEG_LIBS=-lswresample -lavformat -lavcodec -lavutil -lx264 -lmp3lame -lopencore-amrwb -lopencore-amrnb -lopus -lspeex -ltheora -ltheoraenc -logg -lvorbis -lvorbisenc -lvpx -lxvidcore -liconv -lavifil32 -lbz2 -lz -lwsock32
+ALSA_LIBS=
+SDL_LIBS=-lSDL -ldxguid -lgdi32 -lwinmm
 LIBS=$(BOOST_LIBS) $(FFMPEG_LIBS) $(ALSA_LIBS) $(SDL_LIBS)
 
 # define the C source files
@@ -36,7 +36,7 @@ SRC_C =
 SRC_CXX =   chunk.cpp channelmap.cpp \
 			decoder.cpp decoder_ffmpeg.cpp decoder_random.cpp \
 			pc_boost.cpp pc_boost_pl.cpp pc_boost_status.cpp \
-			player.cpp player_alsa.cpp player_sdl.cpp \
+			player.cpp player_sdl.cpp \
 			playlist.cpp softvol.cpp trackinfo.cpp \
 			pc_boost_main.cpp
 SRCS = $(SRC_C) $(SRC_CXX)

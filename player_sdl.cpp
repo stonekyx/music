@@ -1,5 +1,17 @@
+#ifdef __linux
 #include <SDL2/SDL_audio.h>
 #include <SDL2/SDL.h>
+#else
+#include <SDL/SDL_audio.h>
+#include <SDL/SDL.h>
+#ifndef AUDIO_S32
+#define AUDIO_S32 AUDIO_S16
+#endif
+#ifndef AUDIO_S32MSB
+#define AUDIO_S32MSB AUDIO_S16MSB
+#endif
+typedef Uint16 SDL_AudioFormat;
+#endif
 #include <cstring>
 
 #include "pc_boost_monitor.h"
@@ -93,7 +105,7 @@ int PlayerSDL::open(sample_format_t sf, const channel_position_t *cp)
     priv->wanted.freq = sf_get_rate(sf)/*sf_get_channels(sf)*/;
     priv->wanted.format = priv->sf_get_format(sf);
     priv->wanted.channels = sf_get_channels(sf);
-    priv->wanted.samples = 1024;
+    priv->wanted.samples = 1024*4;
     priv->wanted.callback = priv->fill_audio;
     priv->wanted.userdata = (void*)priv;
     if(SDL_OpenAudio(&priv->wanted, NULL)<0) {

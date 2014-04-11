@@ -23,13 +23,13 @@
 #include "config/utils.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <time.h>
-#include <stdint.h>
+#include <ctime>
+#include <cstdint>
 #ifdef HAVE_BYTESWAP_H
 #include <byteswap.h>
 #endif
@@ -127,6 +127,7 @@ static inline time_t file_get_mtime(const char *filename)
 	return s.st_mtime;
 }
 
+#ifdef __linux
 static inline void ns_sleep(int ns)
 {
 	struct timespec req;
@@ -135,6 +136,14 @@ static inline void ns_sleep(int ns)
 	req.tv_nsec = ns;
 	nanosleep(&req, NULL);
 }
+#else
+#include <boost/chrono.hpp>
+#include <boost/thread.hpp>
+static inline void ns_sleep(int ns)
+{
+    boost::this_thread::sleep_for(boost::chrono::nanoseconds(ns));
+}
+#endif
 
 static inline void us_sleep(int us)
 {
@@ -222,6 +231,18 @@ static inline uint16_t read_le16(const char *buf)
 	const unsigned char *b = (const unsigned char *)buf;
 
 	return b[0] | (b[1] << 8);
+}
+
+static inline char *xstrdup(const char *str)
+{
+    char *res = new char[strlen(str)];
+    strcpy(res, str);
+    return res;
+}
+
+static inline void xfree(char *str)
+{
+    delete[] str;
 }
 
 #endif

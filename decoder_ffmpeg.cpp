@@ -14,9 +14,9 @@ extern "C" {
 #include "decoder_ffmpeg.h"
 extern "C" {
 #include "sf.h"
+}
 #include "utils.h"
 #include "channelmap.h"
-}
 
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
@@ -209,7 +209,6 @@ int DecoderFFmpeg::open(const char *filename)
     if (priv->input == NULL) {
         avcodec_close(cc);
         avformat_close_input(&ic);
-        free(priv);
         return -IP_ERROR_INTERNAL;
     }
     priv->output = priv->ffmpeg_output_create();
@@ -265,7 +264,11 @@ void DecoderFFmpeg::close()
 
 int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
 {
+#if (LIBAVCODEC_VERSION_INT >= ((55<<16)+(52<<8)+102))
     AVFrame *frame = av_frame_alloc();
+#else
+    AVFrame *frame = avcodec_alloc_frame();
+#endif
     int got_frame;
     while (1) {
         int len;
@@ -274,7 +277,11 @@ int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
             av_free_packet(&input->pkt);
             if (av_read_frame(input_context, &input->pkt) < 0) {
                 /* Force EOF once we can read no longer. */
+#if (LIBAVCODEC_VERSION_INT >= ((55<<16)+(52<<8)+102))
                 av_frame_free(&frame);
+#else
+                avcodec_free_frame(&frame);
+#endif
                 return 0;
             }
             input->curr_pkt_size = input->pkt.size;
@@ -308,7 +315,11 @@ int DecoderFFmpeg::Private::ffmpeg_fill_buffer()
                 res = 0;
             output->buffer_pos = output->buffer;
             output->buffer_used_len = res * codec_context->channels * sizeof(int16_t);
+#if (LIBAVCODEC_VERSION_INT >= ((55<<16)+(52<<8)+102))
             av_frame_free(&frame);
+#else
+            avcodec_free_frame(&frame);
+#endif
             return output->buffer_used_len;
         }
     }
@@ -406,14 +417,14 @@ long DecoderFFmpeg::current_bitrate()
 
 char *DecoderFFmpeg::codec()
 {
-    return strdup(priv->codec->name);
+    return xstrdup(priv->codec->name);
 }
 
 char *DecoderFFmpeg::codec_profile()
 {
     const char *profile;
     profile = av_get_profile_name(priv->codec, priv->codec_context->profile);
-    return profile ? strdup(profile) : NULL;
+    return profile ? xstrdup(profile) : NULL;
 }
 
 bool DecoderFFmpeg::isopen()

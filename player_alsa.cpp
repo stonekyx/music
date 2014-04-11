@@ -7,9 +7,9 @@ extern "C" {
 
 extern "C" {
 #include "sf.h"
+}
 #include "utils.h"
 #include "channelmap.h"
-}
 
 #include "player_alsa.h"
 
@@ -148,10 +148,10 @@ int PlayerALSA::init()
     snd_lib_error_set_handler(priv->error_handler);
 
     if (priv->alsa_dsp_device == NULL)
-        priv->alsa_dsp_device = strdup("default");
+        priv->alsa_dsp_device = xstrdup("default");
     rc = snd_pcm_status_malloc(&priv->status);
     if (rc < 0) {
-        free(priv->alsa_dsp_device);
+        xfree(priv->alsa_dsp_device);
         priv->alsa_dsp_device = NULL;
         errno = ENOMEM;
         return -OP_ERROR_ERRNO;
@@ -162,7 +162,7 @@ int PlayerALSA::init()
 int PlayerALSA::exit()
 {
     snd_pcm_status_free(priv->status);
-    free(priv->alsa_dsp_device);
+    xfree(priv->alsa_dsp_device);
     priv->alsa_dsp_device = NULL;
     return OP_ERROR_SUCCESS;
 }
@@ -332,8 +332,8 @@ int PlayerALSA::set_option(int key, const char *val)
 {
     switch (key) {
         case 0:
-            free(priv->alsa_dsp_device);
-            priv->alsa_dsp_device = strdup(val);
+            xfree(priv->alsa_dsp_device);
+            priv->alsa_dsp_device = xstrdup(val);
             break;
         default:
             return -OP_ERROR_NOT_OPTION;
@@ -346,7 +346,7 @@ int PlayerALSA::get_option(int key, char **val)
     switch (key) {
         case 0:
             if (priv->alsa_dsp_device)
-                *val = strdup(priv->alsa_dsp_device);
+                *val = xstrdup(priv->alsa_dsp_device);
             break;
         default:
             return -OP_ERROR_NOT_OPTION;

@@ -4,9 +4,9 @@
 
 extern "C" {
 #include "sf.h"
-#include "channelmap.h"
-#include "decoder.h"
 }
+#include "decoder.h"
+#include "channelmap.h"
 
 class DecoderFFmpeg : public Decoder {
     private:

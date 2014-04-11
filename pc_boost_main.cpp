@@ -1,9 +1,13 @@
 #include <cstdio>
+#ifdef __linux
 #include <termios.h>
+#endif
 
 #include "pc_boost.h"
 
 using namespace std;
+
+#ifdef __linux
 
 struct termios saved_attributes;
 
@@ -26,12 +30,16 @@ static void terminal_exit()
     tcsetattr (0, TCSAFLUSH, &saved_attributes);
 }
 
+#endif
+
 int main(int argc, char *argv[])
 {
     Application app(128);
     //app.open(argc>1?argv[1]:"bleu.flac");
     int x;
+#ifdef __linux
     terminal_init();
+#endif
     while((x=getchar())!=EOF) {
         if(x=='a') {
             puts("main: a");
@@ -62,6 +70,8 @@ int main(int argc, char *argv[])
             app.set_vol(vol, vol);
         }
     }
+#ifdef __linux
     terminal_exit();
+#endif
     return 0;
 }
