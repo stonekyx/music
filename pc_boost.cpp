@@ -130,14 +130,13 @@ Application::Application(int bufsize):
 
 void Application::init(int bufsize)
 {
-    //fout.open("/tmp/out.wav");
     pl_moving = true;
     pl_cycling = true;
     state = STATE_PAUSE;
     pl_load();
     mon = new Monitor<Chunk>(bufsize);
     decoder = new DecoderFFmpeg();
-    player = new PlayerALSA();
+    player = new PlayerSDL();
     player->init();
     th_prod = boost::thread(boost::bind(&Application::producer, this));
     th_cons = boost::thread(boost::bind(&Application::consumer, this));
@@ -151,7 +150,6 @@ Application::~Application()
     delete mon;
     delete decoder;
     delete player;
-    //fout.close();
 }
 
 int Application::open(const char *filename)
@@ -174,10 +172,16 @@ void Application::close()
 
 void Application::play()
 {
+    /*static char cnt[]="0";
+    string filename = "/tmp/out.wav";
+    filename.append(cnt);
+    (*cnt)++;
+    fout.open(filename);*/
     cout<<"decoder isopen"<<endl;
     if(!decoder->isopen()) {
         mutex_pl.lock();
         if(pl_pos!=pl.end()) {
+            mon->clear();
             decoder->open(pl_pos->path.c_str());
             mutex_pl.unlock();
         } else {
@@ -216,29 +220,32 @@ void Application::stop()
 {
     state = STATE_STOP;
     mutex_cons.lock();
-    cout<<"mon clear"<<endl;
-    mon->clear();
+    mutex_prod.lock();
+    /*cout<<"mon clear"<<endl;
+    mon->clear();*/  //doing monitor clearing in play()
     cout<<"player isopen"<<endl;
     if(player->isopen()) {
         cout<<"player close"<<endl;
         player->drop();
         player->close();
     }
+    cout<<"decoder isopen"<<endl;
+    if(decoder->isopen()) {
+        cout<<"decoder close"<<endl;
+        decoder->close();
+    }
     cout<<"notify"<<endl;
     mutex_cons.unlock();
+    mutex_prod.unlock();
     cond.notify_all();
     cout<<"stop"<<endl;
+    //fout.close();
 }
 
 //Clear buffer and try to find next track.
 bool Application::next()
 {
     this->stop();
-
-    mutex_prod.lock();
-    if(decoder->isopen()) { //enters stopped loop when next fails.
-        decoder->close();
-    }
 
     mutex_pl.lock();
     if(pl_moving && pl_pos!=pl.end()) {
@@ -249,13 +256,11 @@ bool Application::next()
     }
     if(pl_pos!=pl.end()) {
         mutex_pl.unlock();
-        mutex_prod.unlock();
         this->play();
         return true;
     } else {
         //TODO: should mark stopped.
         mutex_pl.unlock();
-        mutex_prod.unlock();
         return false;
     }
 }

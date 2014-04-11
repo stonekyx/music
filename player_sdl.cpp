@@ -35,6 +35,10 @@ void PlayerSDL::Private::fill_audio(
     PlayerSDL::Private *priv = (PlayerSDL::Private*)udata;
     static Chunk chunk(1);
     static bool readnext=true;
+    if(priv==NULL) {
+        readnext=true;
+        return;
+    }
     while(len>0) {
         if(readnext && !priv->mon->read(chunk)) {
             memset(stream, 0, len);
@@ -105,9 +109,11 @@ int PlayerSDL::open(sample_format_t sf, const channel_position_t *cp)
     priv->wanted.freq = sf_get_rate(sf)/*sf_get_channels(sf)*/;
     priv->wanted.format = priv->sf_get_format(sf);
     priv->wanted.channels = sf_get_channels(sf);
-    priv->wanted.samples = 1024*4;
+    priv->wanted.samples = 1024;
     priv->wanted.callback = priv->fill_audio;
     priv->wanted.userdata = (void*)priv;
+    priv->mon->clear();
+    priv->fill_audio(NULL, NULL, 0);
     if(SDL_OpenAudio(&priv->wanted, NULL)<0) {
         return -OP_ERROR_NOT_OPEN;
     }
@@ -124,6 +130,7 @@ bool PlayerSDL::isopen()
 
 int PlayerSDL::close()
 {
+    SDL_PauseAudio(1);
     SDL_CloseAudio();
     priv->isopen=false;
     return 0;
