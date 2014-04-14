@@ -77,4 +77,16 @@ void Monitor<T>::clear()
     tail_.store(0, boost::memory_order_seq_cst);
 }
 
+template<typename T>
+int Monitor<T>::get_count()
+{
+    int head=head_.load(),
+        tail=tail_.load();
+    if(head>=tail) {
+        return head-tail;
+    } else {
+        return bufsize-(tail-head);
+    }
+}
+
 #endif

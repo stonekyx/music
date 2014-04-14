@@ -152,9 +152,9 @@ int PlayerSDL::write(const char *buf, int cnt)
     return cnt;
 }
 
-int PlayerSDL::buffer_space() //TODO: not implemented.
+int PlayerSDL::buffer_space()
 {
-    return 0;
+    return priv->mon->get_count();
 }
 
 int PlayerSDL::pause()

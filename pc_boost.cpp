@@ -97,9 +97,11 @@ void Application::consumer() {
             }
         }
         if(!got_chunk) {
-            cout<<"flushed"<<endl;
-            State expected = STATE_PLAY;
-            state.compare_exchange_strong(expected, STATE_FLUSHED);
+            if(player->buffer_space()<=0) {
+                cout<<"flushed"<<endl;
+                State expected = STATE_PLAY;
+                state.compare_exchange_strong(expected, STATE_FLUSHED);
+            }
             //whether switching to pause/stop depends on producer.
             ms_sleep(50);
         } else {
@@ -202,6 +204,15 @@ void Application::play()
     if(ispaused) {
         player->unpause();
         ispaused=false;
+    }
+}
+
+void Application::play(int idx)
+{
+    if(idx<pl.size()) {
+        this->stop();
+        pl_pos = pl.begin()+idx;
+        this->play();
     }
 }
 
